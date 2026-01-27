@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Dark mode (default) */
+  --bg-primary: #1C1917;
+  --bg-secondary: #292524;
+  --bg-tertiary: #44403C;
+  --text-primary: #FAFAF9;
+  --text-secondary: #A8A29E;
+  --accent: #F59E0B;
+  --accent-secondary: #EA580C;
+  --success: #84CC16;
+  --warning: #FACC15;
+  --error: #EF4444;
+}
+
+.light {
+  --bg-primary: #FFFBEB;
+  --bg-secondary: #FEFCE8;
+  --bg-tertiary: #FEF3C7;
+  --text-primary: #1C1917;
+  --text-secondary: #57534E;
+  --accent: #D97706;
+  --accent-secondary: #EA580C;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: Inter, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar styling for dark mode */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* Focus styles */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Selection */
+::selection {
+  background-color: var(--accent);
+  color: var(--bg-primary);
+}

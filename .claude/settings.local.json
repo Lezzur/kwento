@@ -8,7 +8,11 @@
       "Bash(git init:*)",
       "Bash(git add:*)",
       "Bash(git commit -m \"$\\(cat <<''EOF''\nchore: initialize project structure\n\n- Add .claude/SESSIONS.md for session tracking\n- Add docs/ and src/ directories\n- Add README.md with project overview\n- Add .gitignore for webapp + future mobile\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
-      "Bash(cmd /c \"del nul 2>nul\")"
+      "Bash(cmd /c \"del nul 2>nul\")",
+      "Bash(git commit:*)",
+      "Bash(npx create-next-app:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run build)"
     ]
   }
 }
