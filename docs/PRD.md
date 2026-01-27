@@ -1,6 +1,6 @@
 # Kwento - Product Requirements Document
 
-> **Version**: 1.1
+> **Version**: 1.2
 > **Last Updated**: 2026-01-28
 > **Status**: Discovery Complete - Ready for Implementation
 
@@ -194,6 +194,76 @@ Default is automatic characteristic of the ask is "gentle", ha a separate "manua
 - Click a scene card → opens writing view for that scene
 - Scene status: Not Started / In Progress / Draft / Complete
 - Written content links back to scene elements
+
+---
+
+##### Story Seeds (Plan-to-Writing Connection)
+**Purpose**: Bridge between the visual story plan and the writing page. Seeds are placeholders/markers that appear in the writing view based on planned elements.
+
+**What Seeds Show**:
+| Seed Type | Appears When | Example Display |
+|-----------|--------------|-----------------|
+| **Character Entry** | Character planned to appear | `[→ Marcus enters]` |
+| **Character Exit** | Character leaves scene | `[← Sarah exits]` |
+| **Plot Point** | Key story beat should occur | `[★ The betrayal is revealed]` |
+| **Setting Change** | Location/time shift | `[⚐ Move to: Castle throne room]` |
+| **Conflict** | Tension point planned | `[⚡ Conflict: Father vs. Son]` |
+| **Foreshadowing** | Setup for future event | `[~ Hint at the prophecy]` |
+| **Reveal** | Information disclosed | `[! Reveal: She is the heir]` |
+
+**Seed Behavior**:
+- Seeds appear as inline markers in the writing area (dismissable but tracked)
+- User writes around/through seeds naturally
+- Seeds can be: Addressed (content written), Skipped (intentionally ignored), Moved (reposition in narrative)
+- Completion tracking: "5 of 8 seeds addressed in this chapter"
+- Seeds auto-generate from canvas connections (e.g., "Character X involved in Scene Y")
+
+**Seed Interaction**:
+```
+User sees seed: [→ Marcus enters]
+User writes: "The door creaked open. Marcus stood in the doorway, rain dripping from his coat."
+Seed status: ✓ Addressed
+```
+
+---
+
+##### Dialogue Assistance
+**Purpose**: Help write character dialogue that is consistent with personality, voice, and plot context.
+
+**Dialogue Features**:
+| Feature | Description |
+|---------|-------------|
+| **Voice Consistency** | AI references character's speech patterns, vocabulary, quirks |
+| **Personality Match** | Dialogue reflects character traits (shy = hesitant, bold = direct) |
+| **Relationship Aware** | Tone adjusts based on who character is speaking to |
+| **Plot Context** | Dialogue reflects what character knows at this story point |
+| **Emotion Guidance** | User can specify emotional state for the exchange |
+
+**Dialogue Modes**:
+| Mode | How It Works |
+|------|--------------|
+| **Suggest Line** | User requests: "What would Marcus say here?" → AI suggests based on character profile |
+| **Dialogue Draft** | AI generates full exchange draft based on scene context, user refines |
+| **Voice Check** | User writes dialogue → AI flags if it sounds "out of character" |
+| **Subtext Helper** | AI suggests what character might mean vs. what they say |
+
+**Character Voice Reference**:
+When writing dialogue, AI pulls from Character Profile:
+- Voice/Speech Patterns (formal, casual, accent, catchphrases)
+- Personality Traits (affects word choice, sentence length)
+- Relationships (how they speak to allies vs. enemies)
+- Current emotional state in scene
+- What they know vs. don't know (no accidental omniscience)
+
+**Example**:
+```
+Character: Marcus (gruff veteran, short sentences, avoids emotion)
+Context: Saying goodbye to daughter before battle
+
+User requests dialogue suggestion:
+AI suggests: "Keep the fire lit. I'll be back before it dies."
+(Not: "I love you so much and I'm scared I might not return.")
+```
 
 #### 3.1.8 Export
 **Purpose**: Output complete stories and/or story plans.
@@ -450,6 +520,8 @@ interface Chapter {
   wordCount: number
   status: 'not-started' | 'in-progress' | 'draft' | 'complete'
   linkedScenes: string[] // Scene IDs this chapter covers
+  seedsTotal: number // Total seeds in this chapter
+  seedsAddressed: number // Seeds that have been written
   notes?: string
   createdAt: Date
   updatedAt: Date
@@ -466,7 +538,48 @@ interface WritingSession {
 }
 ```
 
-### 5.9 Story Export
+### 5.9 Story Seed
+```typescript
+interface StorySeed {
+  id: string
+  projectId: string
+  chapterId: string
+  type: SeedType
+  title: string // Short description shown in editor
+  description?: string // Detailed context
+  sourceElementId: string // Canvas element this seed comes from (character, plot point, etc.)
+  position: number // Approximate position in chapter (0-100%)
+  status: 'pending' | 'addressed' | 'skipped' | 'moved'
+  addressedAt?: Date
+  createdAt: Date
+}
+
+type SeedType =
+  | 'character-entry'    // Character appears
+  | 'character-exit'     // Character leaves
+  | 'plot-point'         // Key story beat
+  | 'setting-change'     // Location/time shift
+  | 'conflict'           // Tension point
+  | 'foreshadowing'      // Setup for later
+  | 'reveal'             // Information disclosed
+  | 'relationship'       // Character interaction moment
+  | 'custom'             // User-defined seed
+```
+
+### 5.10 Dialogue Context
+```typescript
+interface DialogueContext {
+  id: string
+  chapterId: string
+  characterIds: string[] // Characters in this conversation
+  emotionalTone?: string // "tense", "playful", "grief-stricken"
+  relationshipDynamic?: string // "rivals", "lovers", "strangers"
+  whatCharacterKnows: Record<string, string[]> // characterId -> known facts
+  sceneGoal?: string // What should this dialogue accomplish?
+}
+```
+
+### 5.11 Story Export
 ```typescript
 interface StoryExport {
   id: string
@@ -717,6 +830,15 @@ interface StoryExport {
 - [ ] Character/plot reference panel
 - [ ] Writing progress tracking
 - [ ] Scene status management
+- [ ] **Story Seeds system** (plan-to-writing connection)
+  - [ ] Auto-generate seeds from canvas elements
+  - [ ] Seed markers in writing editor
+  - [ ] Seed status tracking (addressed/skipped/moved)
+- [ ] **Dialogue assistance**
+  - [ ] Character voice consistency checking
+  - [ ] Dialogue suggestions based on character profile
+  - [ ] Relationship-aware tone adjustment
+  - [ ] "What would [character] say?" feature
 
 ### Phase 5: Export & Polish
 - [ ] Export full stories (docx, PDF, Markdown)
