@@ -1,6 +1,6 @@
 # Kwento - Product Requirements Document
 
-> **Version**: 1.0
+> **Version**: 1.1
 > **Last Updated**: 2026-01-28
 > **Status**: Discovery Complete - Ready for Implementation
 
@@ -9,7 +9,7 @@
 ## 1. Project Overview
 
 ### 1.1 Vision
-**Kwento** is an AI-powered story development workspace that helps writers extract fragmented ideas from their minds and transform them into well-structured, polished story plans.
+**Kwento** is an AI-powered story development workspace that helps writers extract fragmented ideas from their minds, transform them into well-structured story plans, and write complete, polished stories from start to finish.
 
 ### 1.2 Tagline
 *"Get your stories out of your head."*
@@ -29,9 +29,11 @@ Kwento provides:
 - **Character Bible** for consistent, developed characters
 - **Plot Hole Detection** that catches issues early
 - **Structured Output** that guides the actual writing process
+- **Writing Environment** to compose the full story with AI assistance
+- **Complete Story Export** to output finished, publication-ready stories
 
 ### 1.5 Core Value Proposition
-> "Messy ideas in → Polished story plan out"
+> "Messy ideas in → Structured plan out → Complete story written"
 
 ---
 
@@ -145,6 +147,7 @@ Elements added to canvas → Repeat until user satisfied
 | **Automatic** | AI flags potential issues as they emerge |
 | **Manual** | "Check Story" button for full analysis |
 | **Gentle** | Asks questions rather than blunt warnings |
+Default is automatic characteristic of the ask is "gentle", ha a separate "manual" button
 
 **Plot Hole List**:
 - Stored as actionable items
@@ -161,8 +164,39 @@ Elements added to canvas → Repeat until user satisfied
 | **Project Dashboard** | List view with last edited, progress |
 | **Quick Switch** | Easy navigation between projects |
 
-#### 3.1.7 Export
-**Purpose**: Output usable story plans.
+#### 3.1.7 Writing Mode
+**Purpose**: Write the complete story within Kwento, guided by the story plan.
+
+| Aspect | Specification |
+|--------|---------------|
+| **Editor Type** | Distraction-free writing environment |
+| **Structure** | Chapter/Scene-based organization |
+| **AI Assistance** | Optional suggestions, continuation, dialogue help |
+| **Context Aware** | AI knows characters, plot, setting from story bible |
+| **Progress Tracking** | Word count, chapter completion, overall progress |
+
+**Writing Features**:
+- Write scene-by-scene or free-flow by chapter
+- AI can suggest next sentences/paragraphs (on request)
+- AI maintains character voice consistency
+- Reference character sheets and plot points while writing
+- Auto-save with version history
+- Focus mode (hide canvas, show only editor)
+
+**AI Writing Assistance Modes**:
+| Mode | Description |
+|------|-------------|
+| **Off** | Pure manual writing, no AI |
+| **Gentle** | AI available on request only |
+| **Active** | AI suggests continuations, user accepts/rejects |
+
+**Integration with Canvas**:
+- Click a scene card → opens writing view for that scene
+- Scene status: Not Started / In Progress / Draft / Complete
+- Written content links back to scene elements
+
+#### 3.1.8 Export
+**Purpose**: Output complete stories and/or story plans.
 
 | Format | Priority | Notes |
 |--------|----------|-------|
@@ -174,14 +208,14 @@ Elements added to canvas → Repeat until user satisfied
 | Scrivener (.scriv) | P3 | Novel writers |
 
 **Export Contents**:
-- Full story outline
+- Full story and/or outline
 - Character sheets
 - Scene breakdown
 - Visual map as image
 - **Default**: Separate files in ZIP
 - **Optional**: Combined single document
 
-#### 3.1.8 Local Storage
+#### 3.1.9 Local Storage
 **Purpose**: Data ownership, offline capability.
 
 | Aspect | Specification |
@@ -209,9 +243,9 @@ Elements added to canvas → Repeat until user satisfied
 |---------|-------------|
 | **AI Character Portraits** | Generate character visuals from descriptions |
 | **Fine-tuned AI Model** | Specialized story extraction model |
-| **Branch Visualization** | Choose-your-own-adventure story mapping |
+| **Branch Visualization** | Choose-your-own-adventure story mapping | <---must be in v1
 | **Collaboration** | Multiple users on same project |
-| **Advanced World-Building** | Magic systems, timelines, maps |
+| **Advanced World-Building** | Magic systems, timelines, maps | <---must be in v1
 | **Mobile App** | React Native version |
 
 ---
@@ -240,7 +274,23 @@ Canvas loads with previous state → AI: "Welcome back. Last time we were workin
 User continues development
 ```
 
-### 4.4 Export Flow
+### 4.4 Writing Flow
+```
+Canvas View → Click scene card OR "Start Writing" button →
+Writing Mode opens → Select chapter/scene to write →
+Distraction-free editor with character/plot reference panel →
+Write with optional AI assistance → Auto-save →
+Mark scene/chapter status → Return to canvas or continue writing
+```
+
+**Writing with AI Assistance**:
+```
+User writes paragraph → (optional) Request AI continuation →
+AI suggests next paragraph based on plot/characters →
+User accepts, modifies, or rejects → Continue writing
+```
+
+### 4.5 Export Flow
 ```
 Project → Export button → Select format(s) → Select contents →
 Choose: Separate files / Combined → Download ZIP or file
@@ -288,7 +338,7 @@ interface Character {
   color?: string // For canvas visualization
   createdAt: Date
   updatedAt: Date
-}
+  } profile photo <--- v2
 
 interface Relationship {
   characterId: string
@@ -386,6 +436,46 @@ interface Message {
   content: string
   timestamp: Date
   extractedElements?: string[] // Elements created from this message
+}
+```
+
+### 5.8 Chapter (Written Content)
+```typescript
+interface Chapter {
+  id: string
+  projectId: string
+  title: string
+  order: number
+  content: string // The actual written prose
+  wordCount: number
+  status: 'not-started' | 'in-progress' | 'draft' | 'complete'
+  linkedScenes: string[] // Scene IDs this chapter covers
+  notes?: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+interface WritingSession {
+  id: string
+  projectId: string
+  chapterId: string
+  startedAt: Date
+  endedAt?: Date
+  wordsWritten: number
+  aiAssistanceUsed: boolean
+}
+```
+
+### 5.9 Story Export
+```typescript
+interface StoryExport {
+  id: string
+  projectId: string
+  format: 'docx' | 'pdf' | 'markdown' | 'fdx' | 'txt'
+  includeOutline: boolean
+  includeCharacterSheets: boolean
+  includeFullStory: boolean
+  exportedAt: Date
 }
 ```
 
@@ -494,7 +584,7 @@ interface Message {
 | UI Labels | Inter or System | 12-14px | 500 |
 | Chat Messages | Inter or System | 15px | 400 |
 
-### 7.4 Layout Structure
+### 7.4 Layout Structure  
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -620,13 +710,22 @@ interface Message {
 - [ ] Plot hole detection (basic)
 - [ ] Layer system
 
-### Phase 4: Polish & Export
-- [ ] Export (docx, PDF, Markdown)
+### Phase 4: Writing Mode
+- [ ] Chapter/scene-based editor
+- [ ] Distraction-free writing environment
+- [ ] AI writing assistance (suggest continuations)
+- [ ] Character/plot reference panel
+- [ ] Writing progress tracking
+- [ ] Scene status management
+
+### Phase 5: Export & Polish
+- [ ] Export full stories (docx, PDF, Markdown)
+- [ ] Export story plans and outlines
 - [ ] Onboarding walkthrough
 - [ ] Theme system (dark/light, moods)
 - [ ] Clean-up auto-layout
 
-### Phase 5: Launch Prep
+### Phase 6: Launch Prep
 - [ ] Landing page
 - [ ] Error handling & edge cases
 - [ ] Performance optimization
