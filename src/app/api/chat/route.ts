@@ -117,30 +117,53 @@ async function callOpenAI(
 // Fallback responses for development without API keys
 function getFallbackResponse(messages: ChatMessage[]): string {
   const lastMessage = messages[messages.length - 1].content.toLowerCase()
+  const userContent = messages[messages.length - 1].content
+
+  // Extract potential names (capitalized words) for demo element creation
+  const nameMatch = userContent.match(/\b[A-Z][a-z]+\b/)
+  const name = nameMatch ? nameMatch[0] : 'The Protagonist'
 
   if (messages.length === 1) {
     return `Interesting! I'm picking up some ideas here. Let me organize what I'm seeing:
 
-- You mentioned: "${messages[0].content.slice(0, 50)}..."
+I'm detecting [CHARACTER: ${name} | A central figure in your story] and what sounds like [IDEA: Story Concept | ${userContent.slice(0, 40)}...].
 
-Tell me more - who are the main characters? What's the central conflict or tension in this story?
+Tell me more - what's the central conflict or tension? What does ${name} want?
 
-*(Note: Running in demo mode. Add ANTHROPIC_API_KEY or OPENAI_API_KEY to .env.local for full AI)*`
+*(Demo mode - add ANTHROPIC_API_KEY to .env.local for full AI)*`
   }
 
-  if (lastMessage.includes('character')) {
-    return `Great, let's dig into this character more. What drives them? What do they want more than anything, and what's standing in their way?`
+  if (lastMessage.includes('character') || lastMessage.includes('person') || lastMessage.includes('hero')) {
+    return `Great character work! I'm adding [CHARACTER: ${name} | Based on your description].
+
+What drives them? What do they want more than anything, and what's standing in their way?`
   }
 
-  if (lastMessage.includes('scene') || lastMessage.includes('setting')) {
-    return `I can visualize that setting. What emotional tone does this place carry? Is it a place of safety, danger, mystery?`
+  if (lastMessage.includes('scene') || lastMessage.includes('moment') || lastMessage.includes('when')) {
+    return `I can see this scene forming. Adding [SCENE: Key Moment | ${userContent.slice(0, 30)}...].
+
+What emotional tone does this moment carry? What changes because of it?`
   }
 
-  if (lastMessage.includes('plot') || lastMessage.includes('conflict')) {
-    return `That's a compelling conflict. How does this tension escalate? What's at stake if things go wrong?`
+  if (lastMessage.includes('place') || lastMessage.includes('setting') || lastMessage.includes('world')) {
+    return `Interesting setting! Marking [LOCATION: Story World | ${userContent.slice(0, 30)}...].
+
+What rules govern this place? What makes it unique?`
   }
 
-  return `I hear you. Let me ask - what's the feeling you want readers to have when they experience this part of the story?
+  if (lastMessage.includes('conflict') || lastMessage.includes('problem') || lastMessage.includes('struggle')) {
+    return `That's compelling tension. Adding [CONFLICT: Central Struggle | ${userContent.slice(0, 30)}...].
 
-Is there a specific scene or character you'd like to explore further?`
+How does this escalate? What's at stake if things go wrong?`
+  }
+
+  if (lastMessage.includes('theme') || lastMessage.includes('about') || lastMessage.includes('meaning')) {
+    return `I hear the deeper meaning. Noting [THEME: Core Message | ${userContent.slice(0, 30)}...].
+
+How does this theme manifest in your characters' choices?`
+  }
+
+  return `I'm picking up on something here. Let me mark [IDEA: Story Element | ${userContent.slice(0, 30)}...].
+
+What's the feeling you want readers to have? Tell me more about what happens next.`
 }

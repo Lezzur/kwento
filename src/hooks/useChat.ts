@@ -3,9 +3,10 @@
 // =============================================================================
 
 import { useState, useCallback, useEffect } from 'react'
-import { db, generateId, now } from '@/lib/db'
+import { db, generateId, now, createCanvasElement } from '@/lib/db'
 import { useStore } from '@/store'
-import type { Message, Conversation } from '@/types'
+import { extractElements, cleanResponseText } from '@/lib/elementExtractor'
+import type { Message, Conversation, CanvasElement } from '@/types'
 
 const SYSTEM_PROMPT = `You are Kwento, an AI story development assistant. Your role is to help writers extract and organize their story ideas.
 
@@ -16,17 +17,29 @@ CORE BEHAVIORS:
 4. SUGGEST gently - "What if..." not "You should..."
 5. REMEMBER context - Reference earlier parts of conversation
 
-When the user shares ideas, you should:
-- Identify characters, scenes, conflicts, settings from their input
-- Organize what you're picking up into clear elements
-- Ask clarifying questions that reveal the story
-- Offer suggestions only when invited or when user seems stuck
+ELEMENT EXTRACTION:
+When you identify a story element from the user's input, mark it using this format:
+[TYPE: Title] or [TYPE: Title | Brief description]
 
-Format your responses conversationally but include clear element identification when relevant.
-Use markdown formatting sparingly - keep it readable in a chat interface.`
+Available types:
+- CHARACTER: A person/being in the story
+- SCENE: A specific moment or event
+- LOCATION: A place in the story world
+- PLOT-POINT: A key story beat or turning point
+- CONFLICT: A source of tension
+- THEME: A recurring idea or message
+- IDEA: A general concept to explore
+- NOTE: Miscellaneous information
+
+Example response:
+"I'm picking up some great elements here! You've got [CHARACTER: Marcus | A gruff veteran haunted by his past] and it sounds like there's a [CONFLICT: Father vs Son | Generational tension over family legacy].
+
+What drives Marcus? What does he want more than anything?"
+
+Only mark elements when you're confident they're distinct story components the user has shared. Don't over-extract - quality over quantity.`
 
 export function useChat() {
-  const { activeProjectId } = useStore()
+  const { activeProjectId, addElement } = useStore()
   const [conversation, setConversation] = useState<Conversation | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -36,7 +49,6 @@ export function useChat() {
     if (!activeProjectId) return
 
     const loadConversation = async () => {
-      // Try to find existing conversation
       const existing = await db.conversations
         .where('projectId')
         .equals(activeProjectId)
@@ -46,7 +58,6 @@ export function useChat() {
         setConversation(existing)
         setMessages(existing.messages)
       } else {
-        // Create new conversation
         const newConversation: Conversation = {
           id: generateId(),
           projectId: activeProjectId,
@@ -67,7 +78,6 @@ export function useChat() {
   const saveMessages = useCallback(
     async (updatedMessages: Message[]) => {
       if (!conversation) return
-
       await db.conversations.update(conversation.id, {
         messages: updatedMessages,
         updatedAt: now(),
@@ -76,12 +86,65 @@ export function useChat() {
     [conversation]
   )
 
+  // Create canvas elements from extracted data
+  const createExtractedElements = useCallback(
+    async (responseText: string, messageId: string) => {
+      if (!activeProjectId) return []
+
+      const extracted = extractElements(responseText)
+      const createdIds: string[] = []
+
+      // Get viewport center for positioning (stagger elements)
+      const baseX = 400
+      const baseY = 200
+
+      for (let i = 0; i < extracted.length; i++) {
+        const element = extracted[i]
+
+        // Map element type to layer
+        const layerMap: Record<string, CanvasElement['layer']> = {
+          character: 'characters',
+          scene: 'scenes',
+          location: 'locations',
+          'plot-point': 'plot',
+          conflict: 'plot',
+          theme: 'themes',
+          idea: 'all',
+          chapter: 'scenes',
+          note: 'all',
+        }
+
+        const canvasElement = await createCanvasElement(
+          activeProjectId,
+          element.type,
+          element.title,
+          { x: baseX + (i % 3) * 220, y: baseY + Math.floor(i / 3) * 180 },
+          layerMap[element.type] || 'all'
+        )
+
+        // Update content if provided
+        if (element.content) {
+          await db.canvasElements.update(canvasElement.id, {
+            content: element.content,
+          })
+          canvasElement.content = element.content
+        }
+
+        // Add to store for immediate display
+        addElement(canvasElement)
+        createdIds.push(canvasElement.id)
+      }
+
+      return createdIds
+    },
+    [activeProjectId, addElement]
+  )
+
   // Send a message
   const sendMessage = useCallback(
     async (content: string) => {
       if (!content.trim()) return
 
-      // Create user message
       const userMessage: Message = {
         id: generateId(),
         role: 'user',
@@ -94,7 +157,6 @@ export function useChat() {
       setIsLoading(true)
 
       try {
-        // Call AI API
         const response = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -112,13 +174,21 @@ export function useChat() {
         }
 
         const data = await response.json()
+        const responseContent = data.content
 
-        // Create assistant message
+        // Extract elements and create on canvas
+        const extractedIds = await createExtractedElements(
+          responseContent,
+          generateId()
+        )
+
+        // Create assistant message with extracted element IDs
         const assistantMessage: Message = {
           id: generateId(),
           role: 'assistant',
-          content: data.content,
+          content: cleanResponseText(responseContent),
           timestamp: now(),
+          extractedElements: extractedIds.length > 0 ? extractedIds : undefined,
         }
 
         const finalMessages = [...updatedMessages, assistantMessage]
@@ -126,7 +196,6 @@ export function useChat() {
         await saveMessages(finalMessages)
       } catch (error) {
         console.error('Chat error:', error)
-        // Add error message
         const errorMessage: Message = {
           id: generateId(),
           role: 'assistant',
@@ -139,13 +208,12 @@ export function useChat() {
         setIsLoading(false)
       }
     },
-    [messages, saveMessages]
+    [messages, saveMessages, createExtractedElements]
   )
 
   // Clear conversation
   const clearConversation = useCallback(async () => {
     if (!conversation) return
-
     setMessages([])
     await db.conversations.update(conversation.id, {
       messages: [],

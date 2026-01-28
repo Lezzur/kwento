@@ -4,7 +4,7 @@
 
 'use client'
 
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useRef, useEffect } from 'react'
 import {
   ReactFlow,
   Background,
@@ -13,6 +13,8 @@ import {
   addEdge,
   useNodesState,
   useEdgesState,
+  useReactFlow,
+  ReactFlowProvider,
   type Connection,
   type Edge,
   type Node,
@@ -23,8 +25,26 @@ import '@xyflow/react/dist/style.css'
 import StoryNode, { type StoryNodeData } from './nodes/StoryNode'
 import CanvasToolbar from './CanvasToolbar'
 import { useStore } from '@/store'
-import { generateId } from '@/lib/db'
-import type { ElementType, Layer } from '@/types'
+import { createCanvasElement } from '@/lib/db'
+import type { ElementType, Layer, CanvasElement } from '@/types'
+
+// -----------------------------------------------------------------------------
+// Convert CanvasElement to React Flow Node
+// -----------------------------------------------------------------------------
+
+function elementToNode(element: CanvasElement): Node<StoryNodeData> {
+  return {
+    id: element.id,
+    type: 'storyNode',
+    position: element.position,
+    data: {
+      type: element.type,
+      title: element.title,
+      content: element.content,
+      color: element.color,
+    },
+  }
+}
 
 // -----------------------------------------------------------------------------
 // Custom Node Types
@@ -48,17 +68,29 @@ const defaultEdgeOptions = {
 // Component
 // -----------------------------------------------------------------------------
 
-export default function StoryCanvas() {
+function StoryCanvasInner() {
   const {
     activeLayers,
     toggleLayer,
     zoomLevel,
     setZoom,
+    elements,
+    activeProjectId,
+    addElement,
   } = useStore()
 
+  const containerRef = useRef<HTMLDivElement>(null)
+  const { screenToFlowPosition } = useReactFlow()
+
   // React Flow state
-  const [nodes, setNodes, onNodesChange] = useNodesState<Node>([])
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node<StoryNodeData>>([])
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
+
+  // Sync store elements to React Flow nodes
+  useEffect(() => {
+    const newNodes = elements.map(elementToNode)
+    setNodes(newNodes)
+  }, [elements, setNodes])
 
   // Handle new connections
   const onConnect = useCallback(
@@ -83,23 +115,41 @@ export default function StoryCanvas() {
 
   // Add new element at center of viewport
   const handleAddElement = useCallback(
-    (type: ElementType) => {
-      const id = generateId()
-      const newNode = {
-        id,
-        type: 'storyNode',
-        position: {
-          x: 200 + Math.random() * 200,
-          y: 100 + Math.random() * 200,
-        },
-        data: {
-          type,
-          title: `New ${type.charAt(0).toUpperCase() + type.slice(1).replace('-', ' ')}`,
-        } as StoryNodeData,
+    async (type: ElementType) => {
+      if (!activeProjectId) return
+
+      // Get center of viewport in screen coordinates
+      const container = containerRef.current
+      const centerX = container ? container.clientWidth / 2 : 400
+      const centerY = container ? container.clientHeight / 2 : 300
+
+      // Convert screen center to flow position
+      const position = screenToFlowPosition({ x: centerX, y: centerY })
+
+      // Map element type to layer
+      const layerMap: Record<ElementType, Layer> = {
+        character: 'characters',
+        scene: 'scenes',
+        'plot-point': 'plot',
+        location: 'locations',
+        theme: 'themes',
+        chapter: 'scenes',
+        conflict: 'plot',
+        idea: 'all',
+        note: 'all',
       }
-      setNodes((nds) => [...nds, newNode])
+
+      const element = await createCanvasElement(
+        activeProjectId,
+        type,
+        `New ${type.charAt(0).toUpperCase() + type.slice(1).replace('-', ' ')}`,
+        position,
+        layerMap[type] || 'all'
+      )
+
+      addElement(element)
     },
-    [setNodes]
+    [activeProjectId, addElement, screenToFlowPosition]
   )
 
   // Handle layer toggle
@@ -115,8 +165,7 @@ export default function StoryCanvas() {
     if (activeLayers.includes('all')) return nodes
 
     return nodes.filter((node) => {
-      const nodeType = (node.data as StoryNodeData).type
-      // Map element types to layers
+      const nodeType = node.data.type
       const layerMap: Record<ElementType, Layer> = {
         character: 'characters',
         scene: 'scenes',
@@ -134,7 +183,7 @@ export default function StoryCanvas() {
   }, [nodes, activeLayers])
 
   return (
-    <div className="w-full h-full bg-kwento-bg-primary">
+    <div ref={containerRef} className="w-full h-full bg-kwento-bg-primary">
       <ReactFlow
         nodes={visibleNodes}
         edges={edges}
@@ -188,5 +237,13 @@ export default function StoryCanvas() {
         onToggleLayer={handleToggleLayer}
       />
     </div>
+  )
+}
+
+export default function StoryCanvas() {
+  return (
+    <ReactFlowProvider>
+      <StoryCanvasInner />
+    </ReactFlowProvider>
   )
 }
