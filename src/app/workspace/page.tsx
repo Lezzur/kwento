@@ -9,7 +9,7 @@ import dynamic from 'next/dynamic'
 import ChatPanel from '@/components/chat/ChatPanel'
 import Sidebar from '@/components/sidebar/Sidebar'
 import { useStore } from '@/store'
-import { createProject, getAllProjects, getElementsByProject, getConnectionsByProject } from '@/lib/db'
+import { createProject, getAllProjects, getElementsByProject, getConnectionsByProject, getPlotHolesByProject } from '@/lib/db'
 
 // Dynamic import to avoid SSR issues with React Flow
 const StoryCanvas = dynamic(
@@ -18,7 +18,7 @@ const StoryCanvas = dynamic(
 )
 
 export default function WorkspacePage() {
-  const { activeProjectId, setActiveProject, setProjects, setElements, setConnections } = useStore()
+  const { activeProjectId, setActiveProject, setProjects, setElements, setConnections, setPlotHoles } = useStore()
 
   // Initialize or load project on mount
   useEffect(() => {
@@ -42,22 +42,24 @@ export default function WorkspacePage() {
     }
   }, [activeProjectId, setActiveProject, setProjects])
 
-  // Load elements and connections when project changes
+  // Load elements, connections, and plot holes when project changes
   useEffect(() => {
     const loadProjectData = async () => {
       if (!activeProjectId) return
 
-      const [elements, connections] = await Promise.all([
+      const [elements, connections, plotHoles] = await Promise.all([
         getElementsByProject(activeProjectId),
         getConnectionsByProject(activeProjectId),
+        getPlotHolesByProject(activeProjectId),
       ])
 
       setElements(elements)
       setConnections(connections)
+      setPlotHoles(plotHoles)
     }
 
     loadProjectData()
-  }, [activeProjectId, setElements, setConnections])
+  }, [activeProjectId, setElements, setConnections, setPlotHoles])
 
   return (
     <div className="h-full flex">

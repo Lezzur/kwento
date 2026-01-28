@@ -85,6 +85,12 @@ body {
   color: var(--bg-primary);
 }
 
+/* Override React Flow's user-select:none for chat panel */
+aside {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
 /* React Flow customizations */
 .kwento-canvas .react-flow__controls {
   background: var(--bg-secondary);

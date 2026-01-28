@@ -6,6 +6,7 @@
 
 import { useStore } from '@/store'
 import CharacterPanel from './CharacterPanel'
+import PlotHolePanel from './PlotHolePanel'
 
 type SidebarTab = 'elements' | 'characters' | 'plotholes'
 
@@ -71,12 +72,7 @@ export default function Sidebar() {
             <p className="mt-2">Use the canvas toolbar to add elements.</p>
           </div>
         )}
-        {sidebarTab === 'plotholes' && (
-          <div className="p-3 text-xs text-kwento-text-secondary">
-            <p>Plot hole detection coming soon.</p>
-            <p className="mt-2">AI will flag story inconsistencies here.</p>
-          </div>
-        )}
+        {sidebarTab === 'plotholes' && <PlotHolePanel />}
       </div>
     </aside>
   )

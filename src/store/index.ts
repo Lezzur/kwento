@@ -3,7 +3,7 @@
 // =============================================================================
 
 import { create } from 'zustand'
-import type { Project, CanvasElement, Connection, Character, Chapter, Layer } from '@/types'
+import type { Project, CanvasElement, Connection, Character, Chapter, Layer, PlotHole } from '@/types'
 
 // -----------------------------------------------------------------------------
 // Store Types
@@ -45,10 +45,12 @@ interface DataState {
   connections: Connection[]
   characters: Character[]
   chapters: Chapter[]
+  plotHoles: PlotHole[]
 
   // Loading states
   isLoadingProjects: boolean
   isLoadingProject: boolean
+  isAnalyzingPlotHoles: boolean
 }
 
 interface Actions {
@@ -82,8 +84,13 @@ interface Actions {
   removeConnection: (id: string) => void
   setCharacters: (characters: Character[]) => void
   setChapters: (chapters: Chapter[]) => void
+  setPlotHoles: (plotHoles: PlotHole[]) => void
+  addPlotHole: (plotHole: PlotHole) => void
+  updatePlotHole: (id: string, updates: Partial<PlotHole>) => void
+  removePlotHole: (id: string) => void
   setLoadingProjects: (loading: boolean) => void
   setLoadingProject: (loading: boolean) => void
+  setAnalyzingPlotHoles: (analyzing: boolean) => void
 
   // Reset
   resetProjectData: () => void
@@ -117,8 +124,10 @@ const initialDataState: DataState = {
   connections: [],
   characters: [],
   chapters: [],
+  plotHoles: [],
   isLoadingProjects: false,
   isLoadingProject: false,
+  isAnalyzingPlotHoles: false,
 }
 
 // -----------------------------------------------------------------------------
@@ -213,9 +222,28 @@ export const useStore = create<KwentoStore>((set) => ({
 
   setChapters: (chapters) => set({ chapters }),
 
+  setPlotHoles: (plotHoles) => set({ plotHoles }),
+
+  addPlotHole: (plotHole) =>
+    set((state) => ({ plotHoles: [...state.plotHoles, plotHole] })),
+
+  updatePlotHole: (id, updates) =>
+    set((state) => ({
+      plotHoles: state.plotHoles.map((ph) =>
+        ph.id === id ? { ...ph, ...updates } : ph
+      ),
+    })),
+
+  removePlotHole: (id) =>
+    set((state) => ({
+      plotHoles: state.plotHoles.filter((ph) => ph.id !== id),
+    })),
+
   setLoadingProjects: (loading) => set({ isLoadingProjects: loading }),
 
   setLoadingProject: (loading) => set({ isLoadingProject: loading }),
+
+  setAnalyzingPlotHoles: (analyzing) => set({ isAnalyzingPlotHoles: analyzing }),
 
   // Reset project-specific data
   resetProjectData: () =>
@@ -224,6 +252,7 @@ export const useStore = create<KwentoStore>((set) => ({
       connections: [],
       characters: [],
       chapters: [],
+      plotHoles: [],
       selectedElementIds: [],
       activeChapterId: null,
     }),

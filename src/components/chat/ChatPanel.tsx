@@ -45,9 +45,9 @@ export default function ChatPanel() {
       </div>
 
       {/* Chat Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 select-text">
         {messages.length === 0 ? (
-          <div className="bg-kwento-bg-tertiary rounded-lg p-3 text-sm text-kwento-text-secondary">
+          <div className="bg-kwento-bg-tertiary rounded-lg p-3 text-sm text-kwento-text-secondary select-text">
             <p>Hey! What&apos;s the story that&apos;s been brewing in your mind?</p>
             <p className="mt-2">Just share whatever comes to you - scenes, characters, vibes, anything.</p>
           </div>

@@ -47,3 +47,34 @@
     3. Connect canvas to Dexie.js persistence
     4. Add character profiles panel
     5. Implement plot hole detection
+
+### [2026-01-28 18:30] Plot Hole Detection + Canvas Fix
+* **Accomplished**:
+    * Fixed card spawn position — new elements now appear at viewport center (using `useReactFlow` + `screenToFlowPosition`)
+    * Implemented full Plot Hole Detection system:
+        * Created `src/lib/plotHoleDetector.ts` with 6 rule-based detection checks:
+            * Orphaned elements (no connections)
+            * Unused characters (not in scenes)
+            * Empty scenes (no characters)
+            * Unresolved conflicts
+            * Plot points without setup
+            * Circular timeline issues
+        * Created `src/components/sidebar/PlotHolePanel.tsx` with:
+            * "Check Story" manual analysis button
+            * Severity badges (minor/moderate/major)
+            * AI suggestions per issue
+            * Resolve/Ignore/Reopen/Delete actions
+            * Open vs closed grouping
+        * Added PlotHole CRUD to `src/lib/db.ts`
+        * Added plotHoles state + actions to Zustand store
+        * Wired PlotHolePanel into Sidebar
+        * Plot holes load with project data
+* **Current State**: Stable - Plot Hole Detection Complete
+* **Known Issues** (still to fix):
+    1. Card fonts too big
+    2. Card borders too thick
+* **Next Steps**:
+    1. Fix card fonts and borders (quick UI tweaks)
+    2. Build AI chat interface with conversation storage
+    3. Implement element extraction from AI conversation
+    4. Connect canvas to Dexie.js persistence

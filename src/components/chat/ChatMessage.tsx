@@ -15,7 +15,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
       <div
         className={`
-          max-w-[85%] rounded-lg px-3 py-2 text-sm
+          max-w-[85%] rounded-lg px-3 py-2 text-sm select-text cursor-text
           ${isUser
             ? 'bg-kwento-accent text-kwento-bg-primary'
             : 'bg-kwento-bg-tertiary text-kwento-text-primary'

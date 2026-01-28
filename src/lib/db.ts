@@ -273,3 +273,43 @@ export async function updateChapter(id: string, updates: Partial<Chapter>): Prom
 export async function deleteChapter(id: string): Promise<void> {
   await db.chapters.delete(id)
 }
+
+// -----------------------------------------------------------------------------
+// Plot Hole Operations
+// -----------------------------------------------------------------------------
+
+export async function createPlotHole(
+  projectId: string,
+  description: string,
+  severity: PlotHole['severity'],
+  relatedElements: string[] = [],
+  aiSuggestion?: string
+): Promise<PlotHole> {
+  const plotHole: PlotHole = {
+    id: generateId(),
+    projectId,
+    description,
+    severity,
+    relatedElements,
+    status: 'open',
+    aiSuggestion,
+    createdAt: now(),
+  }
+  await db.plotHoles.add(plotHole)
+  return plotHole
+}
+
+export async function getPlotHolesByProject(projectId: string): Promise<PlotHole[]> {
+  return db.plotHoles.where('projectId').equals(projectId).toArray()
+}
+
+export async function updatePlotHole(id: string, updates: Partial<PlotHole>): Promise<void> {
+  if (updates.status === 'resolved') {
+    updates.resolvedAt = now()
+  }
+  await db.plotHoles.update(id, updates)
+}
+
+export async function deletePlotHole(id: string): Promise<void> {
+  await db.plotHoles.delete(id)
+}
