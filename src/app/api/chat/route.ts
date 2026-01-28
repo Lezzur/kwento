@@ -18,6 +18,7 @@ interface ChatRequest {
 const AI_PROVIDER = process.env.AI_PROVIDER || 'anthropic'
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY
 
 export async function POST(request: NextRequest) {
   try {
@@ -33,7 +34,9 @@ export async function POST(request: NextRequest) {
 
     let content: string
 
-    if (AI_PROVIDER === 'anthropic' && ANTHROPIC_API_KEY) {
+    if (AI_PROVIDER === 'gemini' && GEMINI_API_KEY) {
+      content = await callGemini(messages, systemPrompt)
+    } else if (AI_PROVIDER === 'anthropic' && ANTHROPIC_API_KEY) {
       content = await callAnthropic(messages, systemPrompt)
     } else if (AI_PROVIDER === 'openai' && OPENAI_API_KEY) {
       content = await callOpenAI(messages, systemPrompt)
@@ -112,6 +115,45 @@ async function callOpenAI(
 
   const data = await response.json()
   return data.choices[0].message.content
+}
+
+// Google Gemini API
+async function callGemini(
+  messages: ChatMessage[],
+  systemPrompt: string
+): Promise<string> {
+  // Convert messages to Gemini format
+  const contents = messages.map((m) => ({
+    role: m.role === 'assistant' ? 'model' : 'user',
+    parts: [{ text: m.content }],
+  }))
+
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents,
+        systemInstruction: {
+          parts: [{ text: systemPrompt }],
+        },
+        generationConfig: {
+          maxOutputTokens: 1024,
+        },
+      }),
+    }
+  )
+
+  if (!response.ok) {
+    const error = await response.text()
+    throw new Error(`Gemini API error: ${error}`)
+  }
+
+  const data = await response.json()
+  return data.candidates[0].content.parts[0].text
 }
 
 // Fallback responses for development without API keys
