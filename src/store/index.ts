@@ -3,7 +3,7 @@
 // =============================================================================
 
 import { create } from 'zustand'
-import type { Project, CanvasElement, Connection, Character, Chapter } from '@/types'
+import type { Project, CanvasElement, Connection, Character, Chapter, Layer } from '@/types'
 
 // -----------------------------------------------------------------------------
 // Store Types
@@ -18,7 +18,7 @@ interface UIState {
 
   // Canvas state
   selectedElementIds: string[]
-  activeLayers: string[]
+  activeLayers: Layer[]
   zoomLevel: number
   panPosition: { x: number; y: number }
 
@@ -59,8 +59,8 @@ interface Actions {
   addSelectedElement: (id: string) => void
   removeSelectedElement: (id: string) => void
   clearSelection: () => void
-  setActiveLayers: (layers: string[]) => void
-  toggleLayer: (layer: string) => void
+  setActiveLayers: (layers: Layer[]) => void
+  toggleLayer: (layer: Layer) => void
   setZoom: (level: number) => void
   setPan: (position: { x: number; y: number }) => void
   toggleSidebar: () => void

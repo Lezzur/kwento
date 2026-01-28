@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 export default function Home() {
   return (
     <main className="min-h-screen bg-kwento-bg-primary flex flex-col items-center justify-center p-8">
@@ -20,18 +22,24 @@ export default function Home() {
 
         {/* CTA Buttons */}
         <div className="flex gap-4 justify-center pt-4">
-          <button className="px-6 py-3 bg-kwento-accent text-kwento-bg-primary font-semibold rounded-lg hover:bg-kwento-accent-secondary transition-colors">
+          <Link
+            href="/workspace"
+            className="px-6 py-3 bg-kwento-accent text-kwento-bg-primary font-semibold rounded-lg hover:bg-kwento-accent-secondary transition-colors"
+          >
             New Story
-          </button>
-          <button className="px-6 py-3 bg-kwento-bg-secondary text-kwento-text-primary font-semibold rounded-lg border border-kwento-bg-tertiary hover:bg-kwento-bg-tertiary transition-colors">
+          </Link>
+          <Link
+            href="/workspace"
+            className="px-6 py-3 bg-kwento-bg-secondary text-kwento-text-primary font-semibold rounded-lg border border-kwento-bg-tertiary hover:bg-kwento-bg-tertiary transition-colors"
+          >
             Continue Writing
-          </button>
+          </Link>
         </div>
 
         {/* Status */}
         <p className="text-sm text-kwento-text-secondary pt-8">
-          <span className="inline-block w-2 h-2 rounded-full bg-kwento-warning mr-2"></span>
-          Building Phase 1: Foundation
+          <span className="inline-block w-2 h-2 rounded-full bg-kwento-success mr-2"></span>
+          Phase 1: Foundation Complete
         </p>
       </div>
     </main>

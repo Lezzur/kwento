@@ -14,6 +14,14 @@
   --success: #84CC16;
   --warning: #FACC15;
   --error: #EF4444;
+
+  /* Tailwind color references for JS access */
+  --color-kwento-bg-primary: #1C1917;
+  --color-kwento-bg-secondary: #292524;
+  --color-kwento-bg-tertiary: #44403C;
+  --color-kwento-text-primary: #FAFAF9;
+  --color-kwento-text-secondary: #A8A29E;
+  --color-kwento-accent: #F59E0B;
 }
 
 .light {
@@ -75,4 +83,33 @@ body {
 ::selection {
   background-color: var(--accent);
   color: var(--bg-primary);
+}
+
+/* React Flow customizations */
+.kwento-canvas .react-flow__controls {
+  background: var(--bg-secondary);
+  border-color: var(--bg-tertiary);
+}
+
+.kwento-canvas .react-flow__controls-button {
+  background: var(--bg-secondary);
+  border-color: var(--bg-tertiary);
+  fill: var(--text-secondary);
+}
+
+.kwento-canvas .react-flow__controls-button:hover {
+  background: var(--bg-tertiary);
+  fill: var(--text-primary);
+}
+
+.kwento-canvas .react-flow__edge-path {
+  stroke: var(--accent);
+}
+
+.kwento-canvas .react-flow__edge-text {
+  fill: var(--text-secondary);
+}
+
+.kwento-canvas .react-flow__minimap {
+  background: var(--bg-secondary);
 }
