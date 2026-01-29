@@ -4,8 +4,7 @@
 
 'use client'
 
-import { useCallback } from 'react'
-import Dagre from '@dagrejs/dagre'
+import { useCallback, useState } from 'react'
 import { useReactFlow, useNodes, useEdges } from '@xyflow/react'
 import { useStore } from '@/store'
 import { updateCanvasElement } from '@/lib/db'
@@ -38,12 +37,15 @@ function TidyIcon({ className }: { className?: string }) {
 // Layout Algorithm
 // -----------------------------------------------------------------------------
 
-function getLayoutedNodes(
+async function getLayoutedNodes(
   nodes: ReturnType<typeof useNodes>,
   edges: ReturnType<typeof useEdges>,
   direction: 'TB' | 'LR' = 'TB'
 ) {
-  const g = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}))
+  // Dynamic import to avoid SSR issues with dagre
+  const Dagre = await import('@dagrejs/dagre')
+
+  const g = new Dagre.default.graphlib.Graph().setDefaultEdgeLabel(() => ({}))
 
   g.setGraph({
     rankdir: direction,
@@ -66,7 +68,7 @@ function getLayoutedNodes(
   })
 
   // Run the layout
-  Dagre.layout(g)
+  Dagre.default.layout(g)
 
   // Get the new positions
   return nodes.map((node) => {
@@ -97,8 +99,8 @@ export default function TidyUpButton() {
   const handleTidyUp = useCallback(async () => {
     if (nodes.length === 0) return
 
-    // Get layouted nodes
-    const layoutedNodes = getLayoutedNodes(nodes, edges, 'TB')
+    // Get layouted nodes (async due to dynamic import)
+    const layoutedNodes = await getLayoutedNodes(nodes, edges, 'TB')
 
     // Update React Flow state with animation
     setNodes(layoutedNodes)

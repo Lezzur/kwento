@@ -4,7 +4,7 @@
 
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useStore } from '@/store'
 import {
   createCustomCardType,
@@ -44,12 +44,26 @@ interface EditingType {
 }
 
 export default function CardTypePanel() {
-  const { customCardTypes, activeProjectId, addCustomCardType, updateCustomCardType, removeCustomCardType } = useStore()
+  const { customCardTypes, activeProjectId, addCustomCardType, updateCustomCardType, removeCustomCardType, customPanelCreateMode, setCustomPanelCreateMode } = useStore()
 
   const [isCreating, setIsCreating] = useState(false)
   const [editingType, setEditingType] = useState<EditingType | null>(null)
   const [showIconPicker, setShowIconPicker] = useState(false)
   const [showColorPicker, setShowColorPicker] = useState(false)
+
+  // Auto-open create form when triggered from canvas toolbar
+  useEffect(() => {
+    if (customPanelCreateMode) {
+      setEditingType({
+        id: null,
+        name: '',
+        color: COLOR_OPTIONS[Math.floor(Math.random() * COLOR_OPTIONS.length)],
+        icon: 'shield',
+      })
+      setIsCreating(true)
+      setCustomPanelCreateMode(false)
+    }
+  }, [customPanelCreateMode, setCustomPanelCreateMode])
 
   const handleCreate = () => {
     setEditingType({
@@ -118,20 +132,14 @@ export default function CardTypePanel() {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Header */}
-      <div className="p-3 border-b border-kwento-bg-tertiary flex items-center justify-between">
-        <h2 className="text-xs font-semibold text-kwento-text-primary uppercase tracking-wide">
-          Custom Card Types
-        </h2>
+      {/* + New Button */}
+      <div className="p-3 border-b border-kwento-bg-tertiary flex justify-end">
         <button
           onClick={handleCreate}
-          className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-kwento-accent hover:bg-kwento-accent/10 rounded transition-colors"
-          title="Create new card type"
+          disabled={!!editingType}
+          className="text-xs font-medium text-kwento-accent hover:text-kwento-accent/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          New
+          + New
         </button>
       </div>
 

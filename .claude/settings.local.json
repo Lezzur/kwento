@@ -12,7 +12,16 @@
       "Bash(git commit:*)",
       "Bash(npx create-next-app:*)",
       "Bash(npm install:*)",
-      "Bash(npm run build)"
+      "Bash(npm run build)",
+      "Bash(npm run dev)",
+      "Bash(timeout:*)",
+      "Bash(ping:*)",
+      "Bash(start http://localhost:3001)",
+      "Bash(npx tsc:*)",
+      "Bash(git push)",
+      "Bash(git remote add:*)",
+      "Bash(git push:*)",
+      "Bash(test -d \"C:\\\\Users\\\\Ruzzel\\\\.claude\\\\skills\")"
     ]
   }
 }

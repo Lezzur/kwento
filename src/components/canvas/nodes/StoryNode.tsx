@@ -186,6 +186,8 @@ function StoryNode({ id, data, selected }: StoryNodeProps) {
           width: 8,
           height: 8,
           borderRadius: 2,
+          backgroundColor: accentColor,
+          border: 'none',
         }}
       />
 
@@ -193,12 +195,12 @@ function StoryNode({ id, data, selected }: StoryNodeProps) {
       {selected && (
         <button
           onClick={handleDeleteClick}
-          className="absolute -top-2 -right-2 w-4 h-4 rounded-full bg-red-500 hover:bg-red-600
+          className="absolute -top-1.5 -right-1.5 w-2.5 h-2.5 rounded-full bg-red-500 hover:bg-red-600
                      flex items-center justify-center transition-colors z-10 nodrag
                      shadow-md hover:scale-110"
           title="Delete element"
         >
-          <svg viewBox="0 0 10 10" className="w-2 h-2 text-white">
+          <svg viewBox="0 0 10 10" className="w-1.5 h-1.5 text-white">
             <path d="M2 2L8 8M8 2L2 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
           </svg>
         </button>

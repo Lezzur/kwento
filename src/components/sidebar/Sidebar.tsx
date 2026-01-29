@@ -10,7 +10,7 @@ import { createProject, getAllProjects, updateProject } from '@/lib/db'
 import { useToast } from '@/components/ui/Toast'
 import CharacterPanel from './CharacterPanel'
 import PlotHolePanel from './PlotHolePanel'
-import CardTypePanel from './CardTypePanel'
+import ElementsPanel from './ElementsPanel'
 import {
   ElementsIcon,
   CharacterIcon,
@@ -171,7 +171,7 @@ export default function Sidebar() {
       {/* Tab Content */}
       <div className="flex-1 overflow-hidden">
         {sidebarTab === 'characters' && <CharacterPanel />}
-        {sidebarTab === 'elements' && <CardTypePanel />}
+        {sidebarTab === 'elements' && <ElementsPanel />}
         {sidebarTab === 'plotholes' && <PlotHolePanel />}
       </div>
     </aside>

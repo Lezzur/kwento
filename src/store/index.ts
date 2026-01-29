@@ -30,6 +30,7 @@ interface UIState {
   // Sidebar state
   sidebarOpen: boolean
   sidebarTab: 'elements' | 'characters' | 'plotholes' | 'layers'
+  customPanelCreateMode: boolean
 
   // Chat panel state
   chatPanelOpen: boolean
@@ -77,7 +78,9 @@ interface Actions {
   setPan: (position: { x: number; y: number }) => void
   setViewportCenter: (position: { x: number; y: number }) => void
   toggleSidebar: () => void
+  openSidebar: () => void
   setSidebarTab: (tab: UIState['sidebarTab']) => void
+  setCustomPanelCreateMode: (mode: boolean) => void
   toggleChatPanel: () => void
   setActiveChapter: (chapterId: string | null) => void
   toggleFocusMode: () => void
@@ -132,6 +135,7 @@ const initialUIState: UIState = {
   cardFont: 'system',
   sidebarOpen: true,
   sidebarTab: 'elements',
+  customPanelCreateMode: false,
   chatPanelOpen: true,
   activeChapterId: null,
   focusMode: false,
@@ -200,8 +204,10 @@ export const useStore = create<KwentoStore>((set) => ({
   setViewportCenter: (position) => set({ viewportCenter: position }),
 
   toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
+  openSidebar: () => set({ sidebarOpen: true }),
 
   setSidebarTab: (tab) => set({ sidebarTab: tab }),
+  setCustomPanelCreateMode: (mode) => set({ customPanelCreateMode: mode }),
 
   toggleChatPanel: () => set((state) => ({ chatPanelOpen: !state.chatPanelOpen })),
 

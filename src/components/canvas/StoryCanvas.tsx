@@ -85,6 +85,9 @@ function StoryCanvasInner() {
     autoSaveEnabled,
     autoSaveInterval,
     customCardTypes,
+    openSidebar,
+    setSidebarTab,
+    setCustomPanelCreateMode,
   } = useStore()
 
   const containerRef = useRef<HTMLDivElement>(null)
@@ -293,6 +296,13 @@ function StoryCanvasInner() {
     [toggleLayer]
   )
 
+  // Open the Custom panel in the sidebar and trigger create mode
+  const handleOpenCustomPanel = useCallback(() => {
+    openSidebar()
+    setSidebarTab('elements')
+    setCustomPanelCreateMode(true)
+  }, [openSidebar, setSidebarTab, setCustomPanelCreateMode])
+
   // Filter nodes by active layers
   const visibleNodes = useMemo(() => {
     if (activeLayers.includes('all')) return nodes
@@ -383,6 +393,7 @@ function StoryCanvasInner() {
       <CanvasToolbar
         onAddElement={handleAddElement}
         onAddCustomElement={handleAddCustomElement}
+        onOpenCustomPanel={handleOpenCustomPanel}
         customCardTypes={customCardTypes}
         activeLayers={activeLayers}
         onToggleLayer={handleToggleLayer}

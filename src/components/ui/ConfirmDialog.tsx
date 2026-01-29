@@ -5,6 +5,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 
 // -----------------------------------------------------------------------------
 // Types
@@ -81,7 +82,8 @@ export default function ConfirmDialog({
     },
   }[variant]
 
-  return (
+  // Use portal to render dialog at document body level, avoiding canvas clipping
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
@@ -138,6 +140,7 @@ export default function ConfirmDialog({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

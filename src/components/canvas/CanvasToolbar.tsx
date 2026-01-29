@@ -12,6 +12,7 @@ import { ElementIcon, DynamicIcon } from '@/components/icons/StoryIcons'
 interface CanvasToolbarProps {
   onAddElement: (type: ElementType) => void
   onAddCustomElement: (customType: CustomCardType) => void
+  onOpenCustomPanel: () => void
   customCardTypes: CustomCardType[]
   activeLayers: Layer[]
   onToggleLayer: (layer: Layer) => void
@@ -48,6 +49,7 @@ const layerOptions: { layer: Layer; label: string }[] = [
 export default function CanvasToolbar({
   onAddElement,
   onAddCustomElement,
+  onOpenCustomPanel,
   customCardTypes,
   activeLayers,
   onToggleLayer,
@@ -77,15 +79,27 @@ export default function CanvasToolbar({
               </span>
             </button>
           ))}
+          {/* Custom Button - opens the Custom panel in sidebar */}
+          <button
+            onClick={onOpenCustomPanel}
+            className="flex flex-col items-center gap-1 p-2 rounded-md hover:bg-kwento-bg-tertiary transition-colors group"
+            title="Custom Types"
+          >
+            <DynamicIcon
+              name="gem"
+              size={18}
+              className="text-kwento-text-secondary group-hover:text-kwento-accent group-hover:scale-110 transition-all"
+            />
+            <span className="text-[10px] text-kwento-text-secondary">
+              Custom
+            </span>
+          </button>
         </div>
 
-        {/* Custom Card Types */}
+        {/* Custom Card Types (quick access when types exist) */}
         {customCardTypes.length > 0 && (
           <>
             <div className="border-t border-kwento-bg-tertiary my-2" />
-            <h4 className="text-[10px] font-medium text-kwento-text-muted uppercase tracking-wide mb-1.5">
-              Custom Types
-            </h4>
             <div className="grid grid-cols-3 gap-1">
               {customCardTypes.map((customType) => (
                 <button
