@@ -49,7 +49,13 @@ export default function CardReferenceSidebar({ editor }: CardReferenceSidebarPro
 
   // Handle jump to canvas
   const jumpToCanvas = (elementId: string) => {
-    // TODO: Add logic to center the canvas on the element
+    const element = elements.find((el) => el.id === elementId)
+    if (element) {
+      // Select the element
+      useStore.getState().setSelectedElements([elementId])
+      // Center the viewport on the element
+      useStore.getState().setViewportCenter(element.position)
+    }
     setCurrentView('canvas')
   }
 

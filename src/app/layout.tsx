@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter, Caveat } from 'next/font/google'
 import './globals.css'
+import { ToastContainer } from '@/components/ui/Toast'
 
 const inter = Inter({ subsets: ['latin'] })
 const caveat = Caveat({ subsets: ['latin'], variable: '--font-caveat' })
@@ -17,7 +18,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.className} ${caveat.variable}`}>{children}</body>
+      <body className={`${inter.className} ${caveat.variable}`}>
+        {children}
+        <ToastContainer />
+      </body>
     </html>
   )
 }

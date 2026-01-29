@@ -11,6 +11,7 @@ import CardReferenceSidebar from './CardReferenceSidebar'
 import ChapterNavigator from './ChapterNavigator'
 import { getManuscriptByProject, createManuscript, updateManuscript } from '@/lib/db'
 import { debounce } from '@/lib/utils'
+import { useToast } from '@/components/ui/Toast'
 import type { Editor } from '@tiptap/react'
 
 export default function WritingView() {
@@ -27,6 +28,7 @@ export default function WritingView() {
   const [cardSidebarOpen, setCardSidebarOpen] = useState(true)
   const [isLoading, setIsLoading] = useState(true)
   const [editor, setEditor] = useState<Editor | null>(null)
+  const toast = useToast()
 
   // Load manuscript on mount or when project changes
   useEffect(() => {
@@ -83,10 +85,10 @@ export default function WritingView() {
     setSavingManuscript(true)
     try {
       await updateManuscript(manuscript.id, { content: manuscript.content })
-      // TODO: Show toast notification "Saved!"
+      toast.success('Saved!')
     } catch (error) {
       console.error('Failed to save manuscript:', error)
-      // TODO: Show error toast
+      toast.error('Failed to save manuscript')
     } finally {
       setSavingManuscript(false)
     }
