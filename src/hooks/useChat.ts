@@ -39,7 +39,7 @@ What drives Marcus? What does he want more than anything?"
 Only mark elements when you're confident they're distinct story components the user has shared. Don't over-extract - quality over quantity.`
 
 export function useChat() {
-  const { activeProjectId, addElement } = useStore()
+  const { activeProjectId, addElement, viewportCenter } = useStore()
   const [conversation, setConversation] = useState<Conversation | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -94,9 +94,9 @@ export function useChat() {
       const extracted = extractElements(responseText)
       const createdIds: string[] = []
 
-      // Get viewport center for positioning (stagger elements)
-      const baseX = 400
-      const baseY = 200
+      // Use viewport center from store for positioning (stagger elements)
+      const baseX = viewportCenter.x - 110 // Center the grid of elements
+      const baseY = viewportCenter.y - 90
 
       for (let i = 0; i < extracted.length; i++) {
         const element = extracted[i]
@@ -137,7 +137,7 @@ export function useChat() {
 
       return createdIds
     },
-    [activeProjectId, addElement]
+    [activeProjectId, addElement, viewportCenter]
   )
 
   // Send a message

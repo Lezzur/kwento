@@ -2,7 +2,8 @@
 // KWENTO - Canvas Toolbar
 // =============================================================================
 
-import type { ElementType, Layer } from '@/types'
+import type { ElementType, Layer, CustomCardType } from '@/types'
+import { ElementIcon, DynamicIcon } from '@/components/icons/StoryIcons'
 
 // -----------------------------------------------------------------------------
 // Types
@@ -10,21 +11,23 @@ import type { ElementType, Layer } from '@/types'
 
 interface CanvasToolbarProps {
   onAddElement: (type: ElementType) => void
+  onAddCustomElement: (customType: CustomCardType) => void
+  customCardTypes: CustomCardType[]
   activeLayers: Layer[]
   onToggleLayer: (layer: Layer) => void
 }
 
 // Element options for the toolbar
-const elementOptions: { type: ElementType; icon: string; label: string }[] = [
-  { type: 'scene', icon: '🎬', label: 'Scene' },
-  { type: 'character', icon: '👤', label: 'Character' },
-  { type: 'location', icon: '📍', label: 'Location' },
-  { type: 'plot-point', icon: '⭐', label: 'Plot Point' },
-  { type: 'idea', icon: '💡', label: 'Idea' },
-  { type: 'chapter', icon: '📖', label: 'Chapter' },
-  { type: 'conflict', icon: '⚡', label: 'Conflict' },
-  { type: 'theme', icon: '🎭', label: 'Theme' },
-  { type: 'note', icon: '📝', label: 'Note' },
+const elementOptions: { type: ElementType; label: string }[] = [
+  { type: 'scene', label: 'Scene' },
+  { type: 'character', label: 'Character' },
+  { type: 'location', label: 'Location' },
+  { type: 'plot-point', label: 'Plot Point' },
+  { type: 'idea', label: 'Idea' },
+  { type: 'chapter', label: 'Chapter' },
+  { type: 'conflict', label: 'Conflict' },
+  { type: 'theme', label: 'Theme' },
+  { type: 'note', label: 'Note' },
 ]
 
 // Layer options
@@ -35,6 +38,7 @@ const layerOptions: { layer: Layer; label: string }[] = [
   { layer: 'plot', label: 'Plot' },
   { layer: 'locations', label: 'Locations' },
   { layer: 'themes', label: 'Themes' },
+  { layer: 'custom', label: 'Custom' },
 ]
 
 // -----------------------------------------------------------------------------
@@ -43,6 +47,8 @@ const layerOptions: { layer: Layer; label: string }[] = [
 
 export default function CanvasToolbar({
   onAddElement,
+  onAddCustomElement,
+  customCardTypes,
   activeLayers,
   onToggleLayer,
 }: CanvasToolbarProps) {
@@ -61,15 +67,47 @@ export default function CanvasToolbar({
               className="flex flex-col items-center gap-1 p-2 rounded-md hover:bg-kwento-bg-tertiary transition-colors group"
               title={option.label}
             >
-              <span className="text-xl group-hover:scale-110 transition-transform">
-                {option.icon}
-              </span>
+              <ElementIcon
+                type={option.type}
+                size={18}
+                className="text-kwento-text-secondary group-hover:text-kwento-accent group-hover:scale-110 transition-all"
+              />
               <span className="text-[10px] text-kwento-text-secondary">
                 {option.label}
               </span>
             </button>
           ))}
         </div>
+
+        {/* Custom Card Types */}
+        {customCardTypes.length > 0 && (
+          <>
+            <div className="border-t border-kwento-bg-tertiary my-2" />
+            <h4 className="text-[10px] font-medium text-kwento-text-muted uppercase tracking-wide mb-1.5">
+              Custom Types
+            </h4>
+            <div className="grid grid-cols-3 gap-1">
+              {customCardTypes.map((customType) => (
+                <button
+                  key={customType.id}
+                  onClick={() => onAddCustomElement(customType)}
+                  className="flex flex-col items-center gap-1 p-2 rounded-md hover:bg-kwento-bg-tertiary transition-colors group"
+                  title={customType.name}
+                >
+                  <DynamicIcon
+                    name={customType.icon}
+                    size={18}
+                    className="group-hover:scale-110 transition-all"
+                    style={{ color: customType.color }}
+                  />
+                  <span className="text-[10px] text-kwento-text-secondary truncate max-w-full">
+                    {customType.name}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Layers Panel */}

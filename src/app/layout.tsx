@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, Caveat } from 'next/font/google'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
+const caveat = Caveat({ subsets: ['latin'], variable: '--font-caveat' })
 
 export const metadata: Metadata = {
   title: 'Kwento - Get your stories out of your head',
@@ -16,7 +17,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <body className={inter.className}>{children}</body>
+      <body className={`${inter.className} ${caveat.variable}`}>{children}</body>
     </html>
   )
 }

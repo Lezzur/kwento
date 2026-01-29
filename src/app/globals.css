@@ -2,8 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  /* Dark mode (default) */
+:root,
+[data-theme="dark"] {
+  /* Dark mode (default) - RGB values for Tailwind opacity support */
+  --bg-primary-rgb: 28 25 23;
+  --bg-secondary-rgb: 41 37 36;
+  --bg-tertiary-rgb: 68 64 60;
+  --text-primary-rgb: 250 250 249;
+  --text-secondary-rgb: 168 162 158;
+  --accent-rgb: 245 158 11;
+  --accent-secondary-rgb: 234 88 12;
+  --success-rgb: 132 204 22;
+  --warning-rgb: 250 204 21;
+  --error-rgb: 239 68 68;
+
+  /* Hex values for direct CSS use */
   --bg-primary: #1C1917;
   --bg-secondary: #292524;
   --bg-tertiary: #44403C;
@@ -14,24 +27,58 @@
   --success: #84CC16;
   --warning: #FACC15;
   --error: #EF4444;
-
-  /* Tailwind color references for JS access */
-  --color-kwento-bg-primary: #1C1917;
-  --color-kwento-bg-secondary: #292524;
-  --color-kwento-bg-tertiary: #44403C;
-  --color-kwento-text-primary: #FAFAF9;
-  --color-kwento-text-secondary: #A8A29E;
-  --color-kwento-accent: #F59E0B;
 }
 
-.light {
-  --bg-primary: #FFFBEB;
-  --bg-secondary: #FEFCE8;
-  --bg-tertiary: #FEF3C7;
+[data-theme="midnight"] {
+  /* Midnight mode - RGB values */
+  --bg-primary-rgb: 10 10 10;
+  --bg-secondary-rgb: 20 20 20;
+  --bg-tertiary-rgb: 31 31 31;
+  --text-primary-rgb: 245 245 245;
+  --text-secondary-rgb: 115 115 115;
+  --accent-rgb: 245 158 11;
+  --accent-secondary-rgb: 234 88 12;
+  --success-rgb: 132 204 22;
+  --warning-rgb: 250 204 21;
+  --error-rgb: 239 68 68;
+
+  /* Hex values for direct CSS use */
+  --bg-primary: #0A0A0A;
+  --bg-secondary: #141414;
+  --bg-tertiary: #1F1F1F;
+  --text-primary: #F5F5F5;
+  --text-secondary: #737373;
+  --accent: #F59E0B;
+  --accent-secondary: #EA580C;
+  --success: #84CC16;
+  --warning: #FACC15;
+  --error: #EF4444;
+}
+
+[data-theme="light"] {
+  /* Light mode - RGB values */
+  --bg-primary-rgb: 250 250 249;
+  --bg-secondary-rgb: 245 245 244;
+  --bg-tertiary-rgb: 231 229 228;
+  --text-primary-rgb: 28 25 23;
+  --text-secondary-rgb: 87 83 78;
+  --accent-rgb: 217 119 6;
+  --accent-secondary-rgb: 234 88 12;
+  --success-rgb: 101 163 13;
+  --warning-rgb: 202 138 4;
+  --error-rgb: 220 38 38;
+
+  /* Hex values for direct CSS use */
+  --bg-primary: #FAFAF9;
+  --bg-secondary: #F5F5F4;
+  --bg-tertiary: #E7E5E4;
   --text-primary: #1C1917;
   --text-secondary: #57534E;
   --accent: #D97706;
   --accent-secondary: #EA580C;
+  --success: #65A30D;
+  --warning: #CA8A04;
+  --error: #DC2626;
 }
 
 * {
@@ -91,21 +138,40 @@ aside {
   -webkit-user-select: text;
 }
 
-/* React Flow customizations */
-.kwento-canvas .react-flow__controls {
-  background: var(--bg-secondary);
-  border-color: var(--bg-tertiary);
+/* React Flow Controls - matching panel styling */
+.react-flow__controls {
+  background: var(--bg-secondary) !important;
+  border: 1px solid var(--bg-tertiary) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3) !important;
+  overflow: hidden !important;
 }
 
-.kwento-canvas .react-flow__controls-button {
-  background: var(--bg-secondary);
-  border-color: var(--bg-tertiary);
-  fill: var(--text-secondary);
+.react-flow__controls-button {
+  background: var(--bg-secondary) !important;
+  border: none !important;
+  border-bottom: 1px solid var(--bg-tertiary) !important;
+  width: 28px !important;
+  height: 28px !important;
+  padding: 6px !important;
 }
 
-.kwento-canvas .react-flow__controls-button:hover {
-  background: var(--bg-tertiary);
-  fill: var(--text-primary);
+.react-flow__controls-button:last-child {
+  border-bottom: none !important;
+}
+
+.react-flow__controls-button svg {
+  fill: var(--text-secondary) !important;
+  max-width: 14px !important;
+  max-height: 14px !important;
+}
+
+.react-flow__controls-button:hover {
+  background: var(--bg-tertiary) !important;
+}
+
+.react-flow__controls-button:hover svg {
+  fill: var(--text-primary) !important;
 }
 
 .kwento-canvas .react-flow__edge-path {
@@ -116,6 +182,19 @@ aside {
   fill: var(--text-secondary);
 }
 
-.kwento-canvas .react-flow__minimap {
-  background: var(--bg-secondary);
+/* React Flow MiniMap */
+.react-flow__minimap {
+  background: var(--bg-secondary) !important;
+  border: 1px solid var(--bg-tertiary) !important;
+  border-radius: 8px !important;
+}
+
+.react-flow__minimap-mask {
+  fill: var(--bg-primary) !important;
+  opacity: 0.8 !important;
+}
+
+/* React Flow Background */
+.react-flow__background pattern circle {
+  fill: var(--bg-tertiary) !important;
 }

@@ -3,11 +3,14 @@
 // =============================================================================
 
 import { create } from 'zustand'
-import type { Project, CanvasElement, Connection, Character, Chapter, Layer, PlotHole } from '@/types'
+import type { Project, CanvasElement, Connection, Character, Chapter, Layer, PlotHole, CustomCardType } from '@/types'
 
 // -----------------------------------------------------------------------------
 // Store Types
 // -----------------------------------------------------------------------------
+
+export type CardFont = 'system' | 'serif' | 'mono' | 'handwritten'
+export type AutoSaveInterval = 0 | 500 | 1000 | 2000 | 5000 // 0 = off
 
 interface UIState {
   // Current view
@@ -21,6 +24,8 @@ interface UIState {
   activeLayers: Layer[]
   zoomLevel: number
   panPosition: { x: number; y: number }
+  viewportCenter: { x: number; y: number }
+  cardFont: CardFont
 
   // Sidebar state
   sidebarOpen: boolean
@@ -34,8 +39,12 @@ interface UIState {
   focusMode: boolean
 
   // Theme
-  theme: 'dark' | 'light'
+  theme: 'dark' | 'midnight' | 'light'
   mood: 'cozy' | 'professional' | 'playful'
+
+  // Auto-save
+  autoSaveEnabled: boolean
+  autoSaveInterval: AutoSaveInterval
 }
 
 interface DataState {
@@ -46,6 +55,7 @@ interface DataState {
   characters: Character[]
   chapters: Chapter[]
   plotHoles: PlotHole[]
+  customCardTypes: CustomCardType[]
 
   // Loading states
   isLoadingProjects: boolean
@@ -65,6 +75,7 @@ interface Actions {
   toggleLayer: (layer: Layer) => void
   setZoom: (level: number) => void
   setPan: (position: { x: number; y: number }) => void
+  setViewportCenter: (position: { x: number; y: number }) => void
   toggleSidebar: () => void
   setSidebarTab: (tab: UIState['sidebarTab']) => void
   toggleChatPanel: () => void
@@ -72,6 +83,9 @@ interface Actions {
   toggleFocusMode: () => void
   setTheme: (theme: UIState['theme']) => void
   setMood: (mood: UIState['mood']) => void
+  setCardFont: (font: CardFont) => void
+  setAutoSaveEnabled: (enabled: boolean) => void
+  setAutoSaveInterval: (interval: AutoSaveInterval) => void
 
   // Data Actions
   setProjects: (projects: Project[]) => void
@@ -84,10 +98,15 @@ interface Actions {
   removeConnection: (id: string) => void
   setCharacters: (characters: Character[]) => void
   setChapters: (chapters: Chapter[]) => void
+  updateProject: (id: string, updates: Partial<Project>) => void
   setPlotHoles: (plotHoles: PlotHole[]) => void
   addPlotHole: (plotHole: PlotHole) => void
   updatePlotHole: (id: string, updates: Partial<PlotHole>) => void
   removePlotHole: (id: string) => void
+  setCustomCardTypes: (types: CustomCardType[]) => void
+  addCustomCardType: (type: CustomCardType) => void
+  updateCustomCardType: (id: string, updates: Partial<CustomCardType>) => void
+  removeCustomCardType: (id: string) => void
   setLoadingProjects: (loading: boolean) => void
   setLoadingProject: (loading: boolean) => void
   setAnalyzingPlotHoles: (analyzing: boolean) => void
@@ -109,6 +128,8 @@ const initialUIState: UIState = {
   activeLayers: ['all'],
   zoomLevel: 1,
   panPosition: { x: 0, y: 0 },
+  viewportCenter: { x: 400, y: 300 },
+  cardFont: 'system',
   sidebarOpen: true,
   sidebarTab: 'elements',
   chatPanelOpen: true,
@@ -116,6 +137,8 @@ const initialUIState: UIState = {
   focusMode: false,
   theme: 'dark',
   mood: 'cozy',
+  autoSaveEnabled: true,
+  autoSaveInterval: 500,
 }
 
 const initialDataState: DataState = {
@@ -125,6 +148,7 @@ const initialDataState: DataState = {
   characters: [],
   chapters: [],
   plotHoles: [],
+  customCardTypes: [],
   isLoadingProjects: false,
   isLoadingProject: false,
   isAnalyzingPlotHoles: false,
@@ -173,6 +197,8 @@ export const useStore = create<KwentoStore>((set) => ({
 
   setPan: (position) => set({ panPosition: position }),
 
+  setViewportCenter: (position) => set({ viewportCenter: position }),
+
   toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
 
   setSidebarTab: (tab) => set({ sidebarTab: tab }),
@@ -186,6 +212,12 @@ export const useStore = create<KwentoStore>((set) => ({
   setTheme: (theme) => set({ theme }),
 
   setMood: (mood) => set({ mood }),
+
+  setCardFont: (font) => set({ cardFont: font }),
+
+  setAutoSaveEnabled: (enabled) => set({ autoSaveEnabled: enabled }),
+
+  setAutoSaveInterval: (interval) => set({ autoSaveInterval: interval }),
 
   // Data Actions
   setProjects: (projects) => set({ projects }),
@@ -222,6 +254,13 @@ export const useStore = create<KwentoStore>((set) => ({
 
   setChapters: (chapters) => set({ chapters }),
 
+  updateProject: (id, updates) =>
+    set((state) => ({
+      projects: state.projects.map((p) =>
+        p.id === id ? { ...p, ...updates } : p
+      ),
+    })),
+
   setPlotHoles: (plotHoles) => set({ plotHoles }),
 
   addPlotHole: (plotHole) =>
@@ -239,6 +278,23 @@ export const useStore = create<KwentoStore>((set) => ({
       plotHoles: state.plotHoles.filter((ph) => ph.id !== id),
     })),
 
+  setCustomCardTypes: (customCardTypes) => set({ customCardTypes }),
+
+  addCustomCardType: (type) =>
+    set((state) => ({ customCardTypes: [...state.customCardTypes, type] })),
+
+  updateCustomCardType: (id, updates) =>
+    set((state) => ({
+      customCardTypes: state.customCardTypes.map((t) =>
+        t.id === id ? { ...t, ...updates } : t
+      ),
+    })),
+
+  removeCustomCardType: (id) =>
+    set((state) => ({
+      customCardTypes: state.customCardTypes.filter((t) => t.id !== id),
+    })),
+
   setLoadingProjects: (loading) => set({ isLoadingProjects: loading }),
 
   setLoadingProject: (loading) => set({ isLoadingProject: loading }),
@@ -253,6 +309,7 @@ export const useStore = create<KwentoStore>((set) => ({
       characters: [],
       chapters: [],
       plotHoles: [],
+      customCardTypes: [],
       selectedElementIds: [],
       activeChapterId: null,
     }),

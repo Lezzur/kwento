@@ -10,34 +10,43 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Dark mode (default) - Cozy/Warm palette
+        // Dynamic theme colors using CSS variables
         kwento: {
           // Backgrounds
-          'bg-primary': '#1C1917',      // Warm charcoal
-          'bg-secondary': '#292524',    // Warm dark gray
-          'bg-tertiary': '#44403C',     // Stone
+          'bg-primary': 'rgb(var(--bg-primary-rgb) / <alpha-value>)',
+          'bg-secondary': 'rgb(var(--bg-secondary-rgb) / <alpha-value>)',
+          'bg-tertiary': 'rgb(var(--bg-tertiary-rgb) / <alpha-value>)',
 
           // Text
-          'text-primary': '#FAFAF9',    // Warm white
-          'text-secondary': '#A8A29E',  // Stone gray
+          'text-primary': 'rgb(var(--text-primary-rgb) / <alpha-value>)',
+          'text-secondary': 'rgb(var(--text-secondary-rgb) / <alpha-value>)',
 
           // Accents
-          'accent': '#F59E0B',          // Amber gold
-          'accent-secondary': '#EA580C', // Terracotta
+          'accent': 'rgb(var(--accent-rgb) / <alpha-value>)',
+          'accent-secondary': 'rgb(var(--accent-secondary-rgb) / <alpha-value>)',
 
           // Status
-          'success': '#84CC16',         // Sage green
-          'warning': '#FACC15',         // Warm yellow
-          'error': '#EF4444',           // Soft red
-
-          // Light mode variants
-          'light-bg': '#FFFBEB',        // Warm cream
-          'light-surface': '#FEFCE8',   // Soft white
-          'light-accent': '#D97706',    // Deep amber
+          'success': 'rgb(var(--success-rgb) / <alpha-value>)',
+          'warning': 'rgb(var(--warning-rgb) / <alpha-value>)',
+          'error': 'rgb(var(--error-rgb) / <alpha-value>)',
         },
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
+      },
+      keyframes: {
+        'slide-in': {
+          '0%': { transform: 'translateX(100%)', opacity: '0' },
+          '100%': { transform: 'translateX(0)', opacity: '1' },
+        },
+        'slide-out': {
+          '0%': { transform: 'translateX(0)', opacity: '1' },
+          '100%': { transform: 'translateX(100%)', opacity: '0' },
+        },
+      },
+      animation: {
+        'slide-in': 'slide-in 0.2s ease-out',
+        'slide-out': 'slide-out 0.2s ease-in',
       },
     },
   },

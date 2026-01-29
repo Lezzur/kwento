@@ -41,7 +41,54 @@ export type Layer =
   | 'timeline'
   | 'locations'
   | 'themes'
+  | 'custom'
   | 'all'
+
+// -----------------------------------------------------------------------------
+// Custom Card Types
+// -----------------------------------------------------------------------------
+
+export type IconName =
+  | 'scene'
+  | 'character'
+  | 'location'
+  | 'plot-point'
+  | 'idea'
+  | 'chapter'
+  | 'conflict'
+  | 'theme'
+  | 'note'
+  | 'shield'
+  | 'crown'
+  | 'sword'
+  | 'potion'
+  | 'ring'
+  | 'skull'
+  | 'heart'
+  | 'lightning'
+  | 'key'
+  | 'eye'
+  | 'compass'
+  | 'hourglass'
+  | 'gem'
+  | 'tower'
+  | 'flag'
+  | 'beast'
+  | 'ship'
+  | 'tree'
+  | 'mask'
+  | 'scroll'
+
+export interface CustomCardType {
+  id: string
+  projectId: string
+  name: string
+  color: string
+  icon: IconName
+  layer: Layer
+  createdAt: Date
+  updatedAt: Date
+}
 
 export type PlotHoleSeverity = 'minor' | 'moderate' | 'major'
 export type PlotHoleStatus = 'open' | 'resolved' | 'ignored'
@@ -146,6 +193,7 @@ export interface CanvasElement {
   id: string
   projectId: string
   type: ElementType
+  customTypeId?: string // Reference to CustomCardType for custom elements
   referenceId?: string
   title: string
   content?: string

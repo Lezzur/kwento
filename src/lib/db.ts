@@ -14,6 +14,7 @@ import type {
   Chapter,
   WritingSession,
   StorySeed,
+  CustomCardType,
 } from '@/types'
 
 // -----------------------------------------------------------------------------
@@ -31,6 +32,7 @@ class KwentoDatabase extends Dexie {
   chapters!: EntityTable<Chapter, 'id'>
   writingSessions!: EntityTable<WritingSession, 'id'>
   storySeeds!: EntityTable<StorySeed, 'id'>
+  customCardTypes!: EntityTable<CustomCardType, 'id'>
 
   constructor() {
     super('KwentoDB')
@@ -47,6 +49,21 @@ class KwentoDatabase extends Dexie {
       chapters: 'id, projectId, order, status, createdAt',
       writingSessions: 'id, projectId, chapterId, startedAt',
       storySeeds: 'id, projectId, chapterId, type, status, createdAt',
+    })
+
+    // Version 2: Add custom card types
+    this.version(2).stores({
+      projects: 'id, title, genre, createdAt, updatedAt',
+      characters: 'id, projectId, name, role, createdAt',
+      scenes: 'id, projectId, title, order, createdAt',
+      canvasElements: 'id, projectId, type, layer, createdAt',
+      connections: 'id, projectId, sourceId, targetId, createdAt',
+      plotHoles: 'id, projectId, severity, status, createdAt',
+      conversations: 'id, projectId, createdAt, updatedAt',
+      chapters: 'id, projectId, order, status, createdAt',
+      writingSessions: 'id, projectId, chapterId, startedAt',
+      storySeeds: 'id, projectId, chapterId, type, status, createdAt',
+      customCardTypes: 'id, projectId, name, createdAt',
     })
   }
 }
@@ -108,7 +125,7 @@ export async function deleteProject(id: string): Promise<void> {
   await db.transaction('rw',
     [db.projects, db.characters, db.scenes, db.canvasElements,
      db.connections, db.plotHoles, db.conversations, db.chapters,
-     db.writingSessions, db.storySeeds],
+     db.writingSessions, db.storySeeds, db.customCardTypes],
     async () => {
       await db.characters.where('projectId').equals(id).delete()
       await db.scenes.where('projectId').equals(id).delete()
@@ -119,6 +136,7 @@ export async function deleteProject(id: string): Promise<void> {
       await db.chapters.where('projectId').equals(id).delete()
       await db.writingSessions.where('projectId').equals(id).delete()
       await db.storySeeds.where('projectId').equals(id).delete()
+      await db.customCardTypes.where('projectId').equals(id).delete()
       await db.projects.delete(id)
     }
   )
@@ -312,4 +330,67 @@ export async function updatePlotHole(id: string, updates: Partial<PlotHole>): Pr
 
 export async function deletePlotHole(id: string): Promise<void> {
   await db.plotHoles.delete(id)
+}
+
+// -----------------------------------------------------------------------------
+// Clear Project Data (Reset)
+// -----------------------------------------------------------------------------
+
+/**
+ * Clears all content data for a project but keeps the project itself.
+ * This resets the canvas, characters, chapters, etc. to a fresh state.
+ */
+export async function clearProjectData(projectId: string): Promise<void> {
+  await db.transaction('rw',
+    [db.characters, db.scenes, db.canvasElements, db.connections,
+     db.plotHoles, db.conversations, db.chapters, db.writingSessions, db.storySeeds],
+    async () => {
+      await db.characters.where('projectId').equals(projectId).delete()
+      await db.scenes.where('projectId').equals(projectId).delete()
+      await db.canvasElements.where('projectId').equals(projectId).delete()
+      await db.connections.where('projectId').equals(projectId).delete()
+      await db.plotHoles.where('projectId').equals(projectId).delete()
+      await db.conversations.where('projectId').equals(projectId).delete()
+      await db.chapters.where('projectId').equals(projectId).delete()
+      await db.writingSessions.where('projectId').equals(projectId).delete()
+      await db.storySeeds.where('projectId').equals(projectId).delete()
+    }
+  )
+}
+
+// -----------------------------------------------------------------------------
+// Custom Card Type Operations
+// -----------------------------------------------------------------------------
+
+export async function createCustomCardType(
+  projectId: string,
+  name: string,
+  color: string,
+  icon: CustomCardType['icon'],
+  layer: CustomCardType['layer'] = 'custom'
+): Promise<CustomCardType> {
+  const cardType: CustomCardType = {
+    id: generateId(),
+    projectId,
+    name,
+    color,
+    icon,
+    layer,
+    createdAt: now(),
+    updatedAt: now(),
+  }
+  await db.customCardTypes.add(cardType)
+  return cardType
+}
+
+export async function getCustomCardTypesByProject(projectId: string): Promise<CustomCardType[]> {
+  return db.customCardTypes.where('projectId').equals(projectId).toArray()
+}
+
+export async function updateCustomCardType(id: string, updates: Partial<CustomCardType>): Promise<void> {
+  await db.customCardTypes.update(id, { ...updates, updatedAt: now() })
+}
+
+export async function deleteCustomCardType(id: string): Promise<void> {
+  await db.customCardTypes.delete(id)
 }

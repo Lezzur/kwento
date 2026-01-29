@@ -4,12 +4,15 @@
 
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import dynamic from 'next/dynamic'
 import ChatPanel from '@/components/chat/ChatPanel'
 import Sidebar from '@/components/sidebar/Sidebar'
+import SettingsMenu from '@/components/ui/SettingsMenu'
+import ResetButton from '@/components/ui/ResetButton'
+import { ToastContainer } from '@/components/ui/Toast'
 import { useStore } from '@/store'
-import { createProject, getAllProjects, getElementsByProject, getConnectionsByProject, getPlotHolesByProject } from '@/lib/db'
+import { createProject, getAllProjects, getElementsByProject, getConnectionsByProject, getPlotHolesByProject, getCustomCardTypesByProject } from '@/lib/db'
 
 // Dynamic import to avoid SSR issues with React Flow
 const StoryCanvas = dynamic(
@@ -18,48 +21,53 @@ const StoryCanvas = dynamic(
 )
 
 export default function WorkspacePage() {
-  const { activeProjectId, setActiveProject, setProjects, setElements, setConnections, setPlotHoles } = useStore()
+  const { activeProjectId, setActiveProject, setProjects, setElements, setConnections, setPlotHoles, setCustomCardTypes } = useStore()
+  const isInitializing = useRef(false)
 
-  // Initialize or load project on mount
+  // Initialize project and load data - consolidated to prevent race conditions
   useEffect(() => {
-    const initProject = async () => {
-      const projects = await getAllProjects()
-      setProjects(projects)
+    const initAndLoadProject = async () => {
+      // Prevent concurrent initialization
+      if (isInitializing.current) return
+      isInitializing.current = true
 
-      if (projects.length > 0) {
-        // Use most recently updated project
-        setActiveProject(projects[0].id)
-      } else {
-        // Create a new project
-        const newProject = await createProject('Untitled Story')
-        setProjects([newProject])
-        setActiveProject(newProject.id)
+      try {
+        let projectId = activeProjectId
+
+        // If no active project, initialize one
+        if (!projectId) {
+          const projects = await getAllProjects()
+          setProjects(projects)
+
+          if (projects.length > 0) {
+            projectId = projects[0].id
+          } else {
+            const newProject = await createProject('Untitled Story')
+            setProjects([newProject])
+            projectId = newProject.id
+          }
+          setActiveProject(projectId)
+        }
+
+        // Load project data
+        const [elements, connections, plotHoles, customCardTypes] = await Promise.all([
+          getElementsByProject(projectId),
+          getConnectionsByProject(projectId),
+          getPlotHolesByProject(projectId),
+          getCustomCardTypesByProject(projectId),
+        ])
+
+        setElements(elements)
+        setConnections(connections)
+        setPlotHoles(plotHoles)
+        setCustomCardTypes(customCardTypes)
+      } finally {
+        isInitializing.current = false
       }
     }
 
-    if (!activeProjectId) {
-      initProject()
-    }
-  }, [activeProjectId, setActiveProject, setProjects])
-
-  // Load elements, connections, and plot holes when project changes
-  useEffect(() => {
-    const loadProjectData = async () => {
-      if (!activeProjectId) return
-
-      const [elements, connections, plotHoles] = await Promise.all([
-        getElementsByProject(activeProjectId),
-        getConnectionsByProject(activeProjectId),
-        getPlotHolesByProject(activeProjectId),
-      ])
-
-      setElements(elements)
-      setConnections(connections)
-      setPlotHoles(plotHoles)
-    }
-
-    loadProjectData()
-  }, [activeProjectId, setElements, setConnections, setPlotHoles])
+    initAndLoadProject()
+  }, [activeProjectId, setActiveProject, setProjects, setElements, setConnections, setPlotHoles, setCustomCardTypes])
 
   return (
     <div className="h-full flex">
@@ -69,10 +77,19 @@ export default function WorkspacePage() {
       {/* Canvas Area */}
       <div className="flex-1 relative">
         <StoryCanvas />
+
+        {/* Top Right Actions */}
+        <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+          <ResetButton />
+          <SettingsMenu />
+        </div>
       </div>
 
       {/* Chat Panel */}
       <ChatPanel />
+
+      {/* Toast Notifications */}
+      <ToastContainer />
     </div>
   )
 }

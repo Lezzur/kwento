@@ -6,8 +6,11 @@
 
 import { useState, useEffect } from 'react'
 import { useStore } from '@/store'
-import { db, getCharactersByProject, createCharacter, updateCharacter } from '@/lib/db'
+import { getCharactersByProject, createCharacter, updateCharacter, deleteCharacter } from '@/lib/db'
 import type { Character, CharacterRole } from '@/types'
+import ExpandableTextarea from '@/components/ui/ExpandableTextarea'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
+import { useToast } from '@/components/ui/Toast'
 
 const ROLE_OPTIONS: { value: CharacterRole; label: string }[] = [
   { value: 'protagonist', label: 'Protagonist' },
@@ -135,12 +138,12 @@ export default function CharacterPanel() {
                 <label className="block text-[10px] uppercase tracking-wide text-kwento-text-secondary mb-1">
                   Appearance
                 </label>
-                <textarea
+                <ExpandableTextarea
                   value={selectedCharacter.physicalDescription || ''}
-                  onChange={(e) => handleUpdateField('physicalDescription', e.target.value)}
+                  onChange={(val) => handleUpdateField('physicalDescription', val)}
                   placeholder="What do they look like?"
+                  label="Appearance"
                   rows={2}
-                  className="w-full px-2 py-1.5 bg-kwento-bg-primary border border-kwento-bg-tertiary rounded text-xs text-kwento-text-primary placeholder:text-kwento-text-secondary focus:outline-none focus:ring-1 focus:ring-kwento-accent resize-none"
                 />
               </div>
 
@@ -155,10 +158,13 @@ export default function CharacterPanel() {
                   onChange={(e) =>
                     handleUpdateField(
                       'personality',
-                      e.target.value.split(',').map((s) => s.trim()).filter(Boolean)
+                      e.target.value
+                        .split(/[\s,.\-;|]+/)
+                        .map((s) => s.trim())
+                        .filter(Boolean)
                     )
                   }
-                  placeholder="brave, stubborn, loyal..."
+                  placeholder="brave stubborn loyal"
                   className="w-full px-2 py-1.5 bg-kwento-bg-primary border border-kwento-bg-tertiary rounded text-xs text-kwento-text-primary placeholder:text-kwento-text-secondary focus:outline-none focus:ring-1 focus:ring-kwento-accent"
                 />
               </div>
@@ -168,12 +174,12 @@ export default function CharacterPanel() {
                 <label className="block text-[10px] uppercase tracking-wide text-kwento-text-secondary mb-1">
                   Goals & Motivations
                 </label>
-                <textarea
+                <ExpandableTextarea
                   value={selectedCharacter.goals || ''}
-                  onChange={(e) => handleUpdateField('goals', e.target.value)}
+                  onChange={(val) => handleUpdateField('goals', val)}
                   placeholder="What do they want? Why?"
+                  label="Goals & Motivations"
                   rows={2}
-                  className="w-full px-2 py-1.5 bg-kwento-bg-primary border border-kwento-bg-tertiary rounded text-xs text-kwento-text-primary placeholder:text-kwento-text-secondary focus:outline-none focus:ring-1 focus:ring-kwento-accent resize-none"
                 />
               </div>
 
@@ -182,12 +188,12 @@ export default function CharacterPanel() {
                 <label className="block text-[10px] uppercase tracking-wide text-kwento-text-secondary mb-1">
                   Backstory
                 </label>
-                <textarea
+                <ExpandableTextarea
                   value={selectedCharacter.backstory || ''}
-                  onChange={(e) => handleUpdateField('backstory', e.target.value)}
+                  onChange={(val) => handleUpdateField('backstory', val)}
                   placeholder="History before the story begins..."
+                  label="Backstory"
                   rows={3}
-                  className="w-full px-2 py-1.5 bg-kwento-bg-primary border border-kwento-bg-tertiary rounded text-xs text-kwento-text-primary placeholder:text-kwento-text-secondary focus:outline-none focus:ring-1 focus:ring-kwento-accent resize-none"
                 />
               </div>
 
@@ -196,12 +202,12 @@ export default function CharacterPanel() {
                 <label className="block text-[10px] uppercase tracking-wide text-kwento-text-secondary mb-1">
                   Character Arc
                 </label>
-                <textarea
+                <ExpandableTextarea
                   value={selectedCharacter.arc || ''}
-                  onChange={(e) => handleUpdateField('arc', e.target.value)}
+                  onChange={(val) => handleUpdateField('arc', val)}
                   placeholder="How do they change through the story?"
+                  label="Character Arc"
                   rows={2}
-                  className="w-full px-2 py-1.5 bg-kwento-bg-primary border border-kwento-bg-tertiary rounded text-xs text-kwento-text-primary placeholder:text-kwento-text-secondary focus:outline-none focus:ring-1 focus:ring-kwento-accent resize-none"
                 />
               </div>
 
@@ -210,12 +216,12 @@ export default function CharacterPanel() {
                 <label className="block text-[10px] uppercase tracking-wide text-kwento-text-secondary mb-1">
                   Voice / Speech Patterns
                 </label>
-                <textarea
+                <ExpandableTextarea
                   value={selectedCharacter.voiceNotes || ''}
-                  onChange={(e) => handleUpdateField('voiceNotes', e.target.value)}
+                  onChange={(val) => handleUpdateField('voiceNotes', val)}
                   placeholder="How do they talk? Accent, catchphrases..."
+                  label="Voice / Speech Patterns"
                   rows={2}
-                  className="w-full px-2 py-1.5 bg-kwento-bg-primary border border-kwento-bg-tertiary rounded text-xs text-kwento-text-primary placeholder:text-kwento-text-secondary focus:outline-none focus:ring-1 focus:ring-kwento-accent resize-none"
                 />
               </div>
 
@@ -224,12 +230,12 @@ export default function CharacterPanel() {
                 <label className="block text-[10px] uppercase tracking-wide text-kwento-text-secondary mb-1">
                   Notes
                 </label>
-                <textarea
+                <ExpandableTextarea
                   value={selectedCharacter.notes || ''}
-                  onChange={(e) => handleUpdateField('notes', e.target.value)}
+                  onChange={(val) => handleUpdateField('notes', val)}
                   placeholder="Additional notes..."
+                  label="Notes"
                   rows={2}
-                  className="w-full px-2 py-1.5 bg-kwento-bg-primary border border-kwento-bg-tertiary rounded text-xs text-kwento-text-primary placeholder:text-kwento-text-secondary focus:outline-none focus:ring-1 focus:ring-kwento-accent resize-none"
                 />
               </div>
             </div>
