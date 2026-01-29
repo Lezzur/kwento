@@ -78,6 +78,7 @@ export type IconName =
   | 'tree'
   | 'mask'
   | 'scroll'
+  | 'pen'
 
 export interface CustomCardType {
   id: string

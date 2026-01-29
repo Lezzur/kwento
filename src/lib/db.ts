@@ -268,6 +268,13 @@ export async function deleteConnection(id: string): Promise<void> {
   await db.connections.delete(id)
 }
 
+export async function updateConnection(
+  id: string,
+  updates: Partial<Pick<Connection, 'label' | 'type'>>
+): Promise<void> {
+  await db.connections.update(id, updates)
+}
+
 // -----------------------------------------------------------------------------
 // Manuscript Operations
 // -----------------------------------------------------------------------------

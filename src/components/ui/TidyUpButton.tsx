@@ -43,9 +43,9 @@ async function getLayoutedNodes(
   direction: 'TB' | 'LR' = 'TB'
 ) {
   // Dynamic import to avoid SSR issues with dagre
-  const Dagre = await import('@dagrejs/dagre')
+  const dagre = await import('@dagrejs/dagre')
 
-  const g = new Dagre.default.graphlib.Graph().setDefaultEdgeLabel(() => ({}))
+  const g = new dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}))
 
   g.setGraph({
     rankdir: direction,
@@ -68,7 +68,7 @@ async function getLayoutedNodes(
   })
 
   // Run the layout
-  Dagre.default.layout(g)
+  dagre.layout(g)
 
   // Get the new positions
   return nodes.map((node) => {

@@ -22,7 +22,8 @@
       "Bash(git remote add:*)",
       "Bash(git push:*)",
       "Bash(test -d \"C:\\\\Users\\\\Ruzzel\\\\.claude\\\\skills\")",
-      "Bash(npx kill-port:*)"
+      "Bash(npx kill-port:*)",
+      "Bash(wc:*)"
     ]
   }
 }

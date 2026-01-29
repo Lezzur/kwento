@@ -721,6 +721,27 @@ export function ScrollIcon({ className = '', size = 16, style }: IconProps) {
   )
 }
 
+export function PenIcon({ className = '', size = 16, style }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      style={style}
+    >
+      {/* Quill pen - writing, authoring */}
+      <path d="M17 3a2.828 2.828 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+      <path d="M15 5l4 4" />
+    </svg>
+  )
+}
+
 // -----------------------------------------------------------------------------
 // Icon Map for Element Types
 // -----------------------------------------------------------------------------
@@ -788,6 +809,7 @@ const allIconComponents: Record<IconName, React.ComponentType<IconProps>> = {
   tree: TreeIcon,
   mask: MaskIcon,
   scroll: ScrollIcon,
+  pen: PenIcon,
 }
 
 export function getIconByName(name: IconName): React.ComponentType<IconProps> {
@@ -827,4 +849,5 @@ export const ICON_OPTIONS: { name: IconName; label: string }[] = [
   { name: 'tree', label: 'Tree' },
   { name: 'mask', label: 'Mask' },
   { name: 'scroll', label: 'Scroll' },
+  { name: 'pen', label: 'Pen' },
 ]

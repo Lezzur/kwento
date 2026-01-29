@@ -26,8 +26,9 @@ import '@xyflow/react/dist/style.css'
 import StoryNode, { type StoryNodeData } from './nodes/StoryNode'
 import CanvasToolbar from './CanvasToolbar'
 import TidyUpButton from '@/components/ui/TidyUpButton'
+import { PenIcon } from '@/components/icons/StoryIcons'
 import { useStore } from '@/store'
-import { createCanvasElement, deleteCanvasElement, updateCanvasElement, createConnection } from '@/lib/db'
+import { createCanvasElement, deleteCanvasElement, updateCanvasElement, createConnection, deleteConnection } from '@/lib/db'
 import { useBatchAutoSave } from '@/hooks/useAutoSave'
 import type { ElementType, Layer, CanvasElement, CustomCardType } from '@/types'
 
@@ -139,7 +140,7 @@ function StoryCanvasInner() {
           ? customCardTypes.find((t) => t.id === element.customTypeId)
           : undefined
 
-        return {
+        const baseNode = {
           id: element.id,
           type: 'storyNode',
           // Use existing position if available (from dragging), otherwise use stored position
@@ -156,6 +157,18 @@ function StoryCanvasInner() {
             customTypeIcon: customType?.icon,
           },
         }
+
+        // Preserve all dimension-related properties from existing node
+        if (existingNode) {
+          return {
+            ...baseNode,
+            ...(existingNode.width && { width: existingNode.width }),
+            ...(existingNode.height && { height: existingNode.height }),
+            ...(existingNode.measured && { measured: existingNode.measured }),
+          }
+        }
+
+        return baseNode
       })
     })
   }, [elements, setNodes, customCardTypes])
@@ -165,52 +178,65 @@ function StoryCanvasInner() {
     async (params: Connection) => {
       if (!activeProjectId || !params.source || !params.target) return
 
-      // Save to database
+      // Limit: A card can only connect to 2 nodes of another card
+      const existingConnectionsCount = edges.filter(
+        (e) =>
+          (e.source === params.source && e.target === params.target) ||
+          (e.source === params.target && e.target === params.source)
+      ).length
+
+      if (existingConnectionsCount >= 2) {
+        console.warn('Connection limit reached: Cards can only have 2 connections between them')
+        return
+      }
+
+      // Save to database (no default label - user can add one)
       const connection = await createConnection(
         activeProjectId,
         params.source,
-        params.target,
-        'connects to'
+        params.target
       )
 
-      // Update local state
+      // Update local state with floating label edge
       setEdges((eds) =>
         addEdge(
           {
             ...params,
             id: connection.id,
             ...defaultEdgeOptions,
-            label: 'connects to',
-            labelStyle: { fill: '#A8A29E', fontWeight: 500, fontSize: 12 },
-            labelBgStyle: { fill: '#292524', fillOpacity: 0.9 },
-            labelBgPadding: [4, 8] as [number, number],
-            labelBgBorderRadius: 4,
+            data: { label: '' },
           },
           eds
         )
       )
     },
-    [setEdges, activeProjectId]
+    [setEdges, activeProjectId, edges]
   )
 
-  // Handle keyboard delete
+  // Handle keyboard delete for nodes and edges
   const onKeyDown = useCallback(
     async (event: KeyboardEvent) => {
       if (event.key === 'Delete' || event.key === 'Backspace') {
-        const selectedNodes = nodes.filter((n) => n.selected)
-        if (selectedNodes.length === 0) return
-
         // Don't delete if focus is in a text input
         const target = event.target as HTMLElement
         if (target.tagName === 'TEXTAREA' || target.tagName === 'INPUT') return
 
+        // Delete selected nodes
+        const selectedNodes = nodes.filter((n) => n.selected)
         for (const node of selectedNodes) {
           await deleteCanvasElement(node.id)
           removeElement(node.id)
         }
+
+        // Delete selected edges
+        const selectedEdges = edges.filter((e) => e.selected)
+        for (const edge of selectedEdges) {
+          await deleteConnection(edge.id)
+          setEdges((eds) => eds.filter((e) => e.id !== edge.id))
+        }
       }
     },
-    [nodes, removeElement]
+    [nodes, edges, removeElement, setEdges]
   )
 
   // Add new element at center of viewport
@@ -395,14 +421,20 @@ function StoryCanvasInner() {
         onAddElement={handleAddElement}
         onAddCustomElement={handleAddCustomElement}
         onOpenCustomPanel={handleOpenCustomPanel}
-        onSwitchToWriting={() => setCurrentView('writing')}
         customCardTypes={customCardTypes}
         activeLayers={activeLayers}
         onToggleLayer={handleToggleLayer}
       />
 
-      {/* Tidy Up Button - positioned to appear before top-right actions */}
-      <div className="absolute top-4 right-28 z-10">
+      {/* Top-right toolbar buttons */}
+      <div className="absolute top-4 right-28 z-10 flex items-center gap-2">
+        <button
+          onClick={() => setCurrentView('writing')}
+          className="bg-kwento-bg-secondary hover:bg-kwento-bg-tertiary border border-kwento-bg-tertiary text-kwento-text-primary p-2 rounded-lg shadow-lg transition-colors"
+          title="Switch to Writing Mode"
+        >
+          <PenIcon size={20} className="text-kwento-text-secondary" />
+        </button>
         <TidyUpButton />
       </div>
     </div>

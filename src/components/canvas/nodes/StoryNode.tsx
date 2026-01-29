@@ -269,23 +269,6 @@ function StoryNode({ id, data, selected }: StoryNodeProps) {
           "
         />
 
-        {/* Editable Content */}
-        <textarea
-          ref={textareaRef}
-          value={content}
-          onChange={handleContentChange}
-          onMouseDown={handleMouseDown}
-          placeholder={`Describe this ${displayLabel.toLowerCase()}...`}
-          style={{ fontFamily }}
-          className="
-            flex-1 w-full resize-none bg-transparent
-            text-[6px] text-kwento-text-secondary/70 leading-snug
-            placeholder:text-kwento-text-secondary/40
-            outline-none focus:outline-none focus-visible:outline-none
-            focus:text-kwento-text-secondary
-            cursor-text nodrag
-          "
-        />
       </div>
 
       {/* Connection Handles */}
