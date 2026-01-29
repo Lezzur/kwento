@@ -11,6 +11,7 @@ import type {
   Connection,
   PlotHole,
   Conversation,
+  Manuscript,
   Chapter,
   WritingSession,
   StorySeed,
@@ -29,6 +30,7 @@ class KwentoDatabase extends Dexie {
   connections!: EntityTable<Connection, 'id'>
   plotHoles!: EntityTable<PlotHole, 'id'>
   conversations!: EntityTable<Conversation, 'id'>
+  manuscripts!: EntityTable<Manuscript, 'id'>
   chapters!: EntityTable<Chapter, 'id'>
   writingSessions!: EntityTable<WritingSession, 'id'>
   storySeeds!: EntityTable<StorySeed, 'id'>
@@ -61,6 +63,22 @@ class KwentoDatabase extends Dexie {
       plotHoles: 'id, projectId, severity, status, createdAt',
       conversations: 'id, projectId, createdAt, updatedAt',
       chapters: 'id, projectId, order, status, createdAt',
+      writingSessions: 'id, projectId, chapterId, startedAt',
+      storySeeds: 'id, projectId, chapterId, type, status, createdAt',
+      customCardTypes: 'id, projectId, name, createdAt',
+    })
+
+    // Version 3: Add manuscripts for rich text editing
+    this.version(3).stores({
+      projects: 'id, title, genre, createdAt, updatedAt',
+      characters: 'id, projectId, name, role, createdAt',
+      scenes: 'id, projectId, title, order, createdAt',
+      canvasElements: 'id, projectId, type, layer, createdAt',
+      connections: 'id, projectId, sourceId, targetId, createdAt',
+      plotHoles: 'id, projectId, severity, status, createdAt',
+      conversations: 'id, projectId, createdAt, updatedAt',
+      manuscripts: 'id, projectId, title, createdAt, updatedAt',
+      chapters: 'id, projectId, manuscriptId, order, createdAt',
       writingSessions: 'id, projectId, chapterId, startedAt',
       storySeeds: 'id, projectId, chapterId, type, status, createdAt',
       customCardTypes: 'id, projectId, name, createdAt',
@@ -124,8 +142,8 @@ export async function deleteProject(id: string): Promise<void> {
   // Delete all related data
   await db.transaction('rw',
     [db.projects, db.characters, db.scenes, db.canvasElements,
-     db.connections, db.plotHoles, db.conversations, db.chapters,
-     db.writingSessions, db.storySeeds, db.customCardTypes],
+     db.connections, db.plotHoles, db.conversations, db.manuscripts,
+     db.chapters, db.writingSessions, db.storySeeds, db.customCardTypes],
     async () => {
       await db.characters.where('projectId').equals(id).delete()
       await db.scenes.where('projectId').equals(id).delete()
@@ -133,6 +151,7 @@ export async function deleteProject(id: string): Promise<void> {
       await db.connections.where('projectId').equals(id).delete()
       await db.plotHoles.where('projectId').equals(id).delete()
       await db.conversations.where('projectId').equals(id).delete()
+      await db.manuscripts.where('projectId').equals(id).delete()
       await db.chapters.where('projectId').equals(id).delete()
       await db.writingSessions.where('projectId').equals(id).delete()
       await db.storySeeds.where('projectId').equals(id).delete()
@@ -250,21 +269,89 @@ export async function deleteConnection(id: string): Promise<void> {
 }
 
 // -----------------------------------------------------------------------------
+// Manuscript Operations
+// -----------------------------------------------------------------------------
+
+export async function createManuscript(
+  projectId: string,
+  title: string = 'Untitled Manuscript'
+): Promise<Manuscript> {
+  const manuscript: Manuscript = {
+    id: generateId(),
+    projectId,
+    title,
+    content: {
+      type: 'doc',
+      content: [{ type: 'paragraph' }],
+    }, // Empty Tiptap document
+    wordCount: 0,
+    createdAt: now(),
+    updatedAt: now(),
+  }
+  await db.manuscripts.add(manuscript)
+  return manuscript
+}
+
+export async function getManuscriptByProject(projectId: string): Promise<Manuscript | undefined> {
+  const manuscripts = await db.manuscripts.where('projectId').equals(projectId).toArray()
+  return manuscripts[0] // One manuscript per project
+}
+
+export async function updateManuscript(id: string, updates: Partial<Manuscript>): Promise<void> {
+  // Auto-calculate word count if content is updated
+  if (updates.content !== undefined) {
+    const text = extractTextFromTiptap(updates.content)
+    updates.wordCount = text.trim().split(/\s+/).filter(Boolean).length
+  }
+  await db.manuscripts.update(id, { ...updates, updatedAt: now() })
+}
+
+export async function deleteManuscript(id: string): Promise<void> {
+  await db.manuscripts.delete(id)
+}
+
+/**
+ * Extract plain text from Tiptap JSON for word counting
+ */
+function extractTextFromTiptap(content: any): string {
+  if (!content) return ''
+  if (typeof content === 'string') return content
+
+  let text = ''
+
+  if (content.content && Array.isArray(content.content)) {
+    for (const node of content.content) {
+      text += extractTextFromTiptap(node) + ' '
+    }
+  }
+
+  if (content.text) {
+    text += content.text
+  }
+
+  return text
+}
+
+// -----------------------------------------------------------------------------
 // Chapter Operations
 // -----------------------------------------------------------------------------
 
 export async function createChapter(
   projectId: string,
+  manuscriptId: string,
   title: string,
-  order: number
+  order: number,
+  startPosition: number = 0,
+  endPosition: number = 0
 ): Promise<Chapter> {
   const chapter: Chapter = {
     id: generateId(),
     projectId,
+    manuscriptId,
     title,
     order,
-    content: '',
-    wordCount: 0,
+    startPosition,
+    endPosition,
     status: 'not-started',
     linkedScenes: [],
     seedsTotal: 0,
@@ -280,11 +367,11 @@ export async function getChaptersByProject(projectId: string): Promise<Chapter[]
   return db.chapters.where('projectId').equals(projectId).sortBy('order')
 }
 
+export async function getChaptersByManuscript(manuscriptId: string): Promise<Chapter[]> {
+  return db.chapters.where('manuscriptId').equals(manuscriptId).sortBy('order')
+}
+
 export async function updateChapter(id: string, updates: Partial<Chapter>): Promise<void> {
-  // Auto-calculate word count if content is updated
-  if (updates.content !== undefined) {
-    updates.wordCount = updates.content.trim().split(/\s+/).filter(Boolean).length
-  }
   await db.chapters.update(id, { ...updates, updatedAt: now() })
 }
 
@@ -343,7 +430,7 @@ export async function deletePlotHole(id: string): Promise<void> {
 export async function clearProjectData(projectId: string): Promise<void> {
   await db.transaction('rw',
     [db.characters, db.scenes, db.canvasElements, db.connections,
-     db.plotHoles, db.conversations, db.chapters, db.writingSessions, db.storySeeds],
+     db.plotHoles, db.conversations, db.manuscripts, db.chapters, db.writingSessions, db.storySeeds],
     async () => {
       await db.characters.where('projectId').equals(projectId).delete()
       await db.scenes.where('projectId').equals(projectId).delete()
@@ -351,6 +438,7 @@ export async function clearProjectData(projectId: string): Promise<void> {
       await db.connections.where('projectId').equals(projectId).delete()
       await db.plotHoles.where('projectId').equals(projectId).delete()
       await db.conversations.where('projectId').equals(projectId).delete()
+      await db.manuscripts.where('projectId').equals(projectId).delete()
       await db.chapters.where('projectId').equals(projectId).delete()
       await db.writingSessions.where('projectId').equals(projectId).delete()
       await db.storySeeds.where('projectId').equals(projectId).delete()

@@ -3,7 +3,7 @@
 // =============================================================================
 
 import { create } from 'zustand'
-import type { Project, CanvasElement, Connection, Character, Chapter, Layer, PlotHole, CustomCardType } from '@/types'
+import type { Project, CanvasElement, Connection, Character, Manuscript, Chapter, Layer, PlotHole, CustomCardType } from '@/types'
 
 // -----------------------------------------------------------------------------
 // Store Types
@@ -54,6 +54,7 @@ interface DataState {
   elements: CanvasElement[]
   connections: Connection[]
   characters: Character[]
+  manuscript: Manuscript | null
   chapters: Chapter[]
   plotHoles: PlotHole[]
   customCardTypes: CustomCardType[]
@@ -62,6 +63,7 @@ interface DataState {
   isLoadingProjects: boolean
   isLoadingProject: boolean
   isAnalyzingPlotHoles: boolean
+  isSavingManuscript: boolean
 }
 
 interface Actions {
@@ -100,7 +102,12 @@ interface Actions {
   addConnection: (connection: Connection) => void
   removeConnection: (id: string) => void
   setCharacters: (characters: Character[]) => void
+  setManuscript: (manuscript: Manuscript | null) => void
+  updateManuscriptContent: (content: any) => void
   setChapters: (chapters: Chapter[]) => void
+  addChapter: (chapter: Chapter) => void
+  updateChapter: (id: string, updates: Partial<Chapter>) => void
+  removeChapter: (id: string) => void
   updateProject: (id: string, updates: Partial<Project>) => void
   setPlotHoles: (plotHoles: PlotHole[]) => void
   addPlotHole: (plotHole: PlotHole) => void
@@ -113,6 +120,7 @@ interface Actions {
   setLoadingProjects: (loading: boolean) => void
   setLoadingProject: (loading: boolean) => void
   setAnalyzingPlotHoles: (analyzing: boolean) => void
+  setSavingManuscript: (saving: boolean) => void
 
   // Reset
   resetProjectData: () => void
@@ -125,7 +133,7 @@ type KwentoStore = UIState & DataState & Actions
 // -----------------------------------------------------------------------------
 
 const initialUIState: UIState = {
-  currentView: 'dashboard',
+  currentView: 'canvas',
   activeProjectId: null,
   selectedElementIds: [],
   activeLayers: ['all'],
@@ -150,12 +158,14 @@ const initialDataState: DataState = {
   elements: [],
   connections: [],
   characters: [],
+  manuscript: null,
   chapters: [],
   plotHoles: [],
   customCardTypes: [],
   isLoadingProjects: false,
   isLoadingProject: false,
   isAnalyzingPlotHoles: false,
+  isSavingManuscript: false,
 }
 
 // -----------------------------------------------------------------------------
@@ -258,7 +268,31 @@ export const useStore = create<KwentoStore>((set) => ({
 
   setCharacters: (characters) => set({ characters }),
 
+  setManuscript: (manuscript) => set({ manuscript }),
+
+  updateManuscriptContent: (content) =>
+    set((state) => ({
+      manuscript: state.manuscript
+        ? { ...state.manuscript, content, updatedAt: new Date() }
+        : null,
+    })),
+
   setChapters: (chapters) => set({ chapters }),
+
+  addChapter: (chapter) =>
+    set((state) => ({ chapters: [...state.chapters, chapter] })),
+
+  updateChapter: (id, updates) =>
+    set((state) => ({
+      chapters: state.chapters.map((ch) =>
+        ch.id === id ? { ...ch, ...updates, updatedAt: new Date() } : ch
+      ),
+    })),
+
+  removeChapter: (id) =>
+    set((state) => ({
+      chapters: state.chapters.filter((ch) => ch.id !== id),
+    })),
 
   updateProject: (id, updates) =>
     set((state) => ({
@@ -307,12 +341,15 @@ export const useStore = create<KwentoStore>((set) => ({
 
   setAnalyzingPlotHoles: (analyzing) => set({ isAnalyzingPlotHoles: analyzing }),
 
+  setSavingManuscript: (saving) => set({ isSavingManuscript: saving }),
+
   // Reset project-specific data
   resetProjectData: () =>
     set({
       elements: [],
       connections: [],
       characters: [],
+      manuscript: null,
       chapters: [],
       plotHoles: [],
       customCardTypes: [],

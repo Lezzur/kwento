@@ -11,6 +11,11 @@
   "dependencies": {
     "@dagrejs/dagre": "^2.0.3",
     "@dagrejs/graphlib": "^3.0.2",
+    "@tiptap/extension-character-count": "^3.18.0",
+    "@tiptap/extension-link": "^3.18.0",
+    "@tiptap/extension-placeholder": "^3.18.0",
+    "@tiptap/react": "^3.18.0",
+    "@tiptap/starter-kit": "^3.18.0",
     "@xyflow/react": "^12.0.0",
     "dexie": "^4.0.0",
     "dexie-react-hooks": "^1.1.0",

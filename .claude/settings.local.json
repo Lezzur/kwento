@@ -21,7 +21,8 @@
       "Bash(git push)",
       "Bash(git remote add:*)",
       "Bash(git push:*)",
-      "Bash(test -d \"C:\\\\Users\\\\Ruzzel\\\\.claude\\\\skills\")"
+      "Bash(test -d \"C:\\\\Users\\\\Ruzzel\\\\.claude\\\\skills\")",
+      "Bash(npx kill-port:*)"
     ]
   }
 }

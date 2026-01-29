@@ -88,6 +88,7 @@ function StoryCanvasInner() {
     openSidebar,
     setSidebarTab,
     setCustomPanelCreateMode,
+    setCurrentView,
   } = useStore()
 
   const containerRef = useRef<HTMLDivElement>(null)
@@ -394,6 +395,7 @@ function StoryCanvasInner() {
         onAddElement={handleAddElement}
         onAddCustomElement={handleAddCustomElement}
         onOpenCustomPanel={handleOpenCustomPanel}
+        onSwitchToWriting={() => setCurrentView('writing')}
         customCardTypes={customCardTypes}
         activeLayers={activeLayers}
         onToggleLayer={handleToggleLayer}

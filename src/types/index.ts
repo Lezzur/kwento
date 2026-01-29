@@ -265,13 +265,24 @@ export interface Message {
 // Writing Mode
 // -----------------------------------------------------------------------------
 
-export interface Chapter {
+export interface Manuscript {
   id: string
   projectId: string
   title: string
-  order: number
-  content: string
+  content: any // Rich text content as JSON (Tiptap format)
   wordCount: number
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface Chapter {
+  id: string
+  projectId: string
+  manuscriptId: string
+  title: string
+  order: number
+  startPosition: number // Character position in manuscript where chapter starts
+  endPosition: number // Character position where chapter ends
   status: ChapterStatus
   linkedScenes: string[]
   seedsTotal: number

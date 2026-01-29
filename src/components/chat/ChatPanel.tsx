@@ -38,7 +38,7 @@ export default function ChatPanel() {
     <aside className="w-80 flex-shrink-0 border-l border-kwento-bg-tertiary bg-kwento-bg-secondary flex flex-col">
       {/* Chat Header */}
       <div className="h-12 flex items-center justify-between px-4 border-b border-kwento-bg-tertiary">
-        <h2 className="text-sm font-medium text-kwento-text-primary">AI Assistant</h2>
+        <h2 className="text-sm font-medium text-kwento-text-secondary">Writing Assistant</h2>
         <span className="text-xs text-kwento-text-secondary">
           {messages.length} messages
         </span>

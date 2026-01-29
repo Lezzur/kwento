@@ -13,6 +13,7 @@ interface CanvasToolbarProps {
   onAddElement: (type: ElementType) => void
   onAddCustomElement: (customType: CustomCardType) => void
   onOpenCustomPanel: () => void
+  onSwitchToWriting: () => void
   customCardTypes: CustomCardType[]
   activeLayers: Layer[]
   onToggleLayer: (layer: Layer) => void
@@ -50,12 +51,22 @@ export default function CanvasToolbar({
   onAddElement,
   onAddCustomElement,
   onOpenCustomPanel,
+  onSwitchToWriting,
   customCardTypes,
   activeLayers,
   onToggleLayer,
 }: CanvasToolbarProps) {
   return (
     <div className="absolute top-4 left-4 z-10 flex flex-col gap-3">
+      {/* Writing Mode Button */}
+      <button
+        onClick={onSwitchToWriting}
+        className="bg-purple-600 hover:bg-purple-700 text-white font-medium px-4 py-2.5 rounded-lg shadow-lg transition-colors flex items-center gap-2"
+        title="Switch to Writing Mode"
+      >
+        <span>✍️</span>
+        <span>Writing Mode</span>
+      </button>
       {/* Add Elements Panel */}
       <div className="bg-kwento-bg-secondary rounded-lg border border-kwento-bg-tertiary p-3 shadow-lg">
         <h3 className="text-xs font-semibold text-kwento-text-secondary uppercase tracking-wide mb-2">

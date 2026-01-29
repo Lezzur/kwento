@@ -22,6 +22,8 @@ export function EditableTitle({
   const [isEditing, setIsEditing] = useState(false)
   const [editValue, setEditValue] = useState(value)
   const inputRef = useRef<HTMLInputElement>(null)
+  // Track the value we started editing - only save if it still matches
+  const originalValueRef = useRef(value)
 
   useEffect(() => {
     if (isEditing && inputRef.current) {
@@ -31,17 +33,38 @@ export function EditableTitle({
   }, [isEditing])
 
   useEffect(() => {
+    // When value changes externally (e.g., switching projects), sync state
     setEditValue(value)
+    // Cancel any pending edit since we switched context
+    setIsEditing(false)
+    // Update the ref so handleSave knows not to save stale data
+    originalValueRef.current = value
   }, [value])
 
   const handleSave = () => {
     const trimmed = editValue.trim()
+
+    // CRITICAL: Only save if the original value matches what we started with
+    // This prevents saving to wrong project when switching during edit
+    if (originalValueRef.current !== value) {
+      // Value changed externally, don't save
+      setEditValue(value)
+      setIsEditing(false)
+      return
+    }
+
     if (trimmed && trimmed !== value) {
       onSave(trimmed)
     } else {
       setEditValue(value)
     }
     setIsEditing(false)
+  }
+
+  const handleStartEdit = () => {
+    // Record the value we're starting to edit
+    originalValueRef.current = value
+    setIsEditing(true)
   }
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -67,14 +90,14 @@ export function EditableTitle({
         onBlur={handleSave}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
-        className={`bg-transparent border-b border-kwento-text-tertiary focus:border-kwento-text-secondary outline-none ${className}`}
+        className={`bg-kwento-bg-tertiary/50 rounded px-1 -mx-1 outline-none focus-visible:outline-none ${className}`}
       />
     )
   }
 
   return (
     <button
-      onClick={() => setIsEditing(true)}
+      onClick={handleStartEdit}
       className={`hover:text-kwento-text-primary transition-colors cursor-text text-left ${className}`}
       title="Click to edit"
     >

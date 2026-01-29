@@ -66,6 +66,7 @@ function StoryNode({ id, data, selected }: StoryNodeProps) {
   const accentColor = data.color || config.defaultColor
   const { setNodes } = useReactFlow()
   const removeElement = useStore((state) => state.removeElement)
+  const updateElement = useStore((state) => state.updateElement)
   const cardFont = useStore((state) => state.cardFont)
   const autoSaveEnabled = useStore((state) => state.autoSaveEnabled)
   const autoSaveInterval = useStore((state) => state.autoSaveInterval)
@@ -118,6 +119,7 @@ function StoryNode({ id, data, selected }: StoryNodeProps) {
       const newTitle = e.target.value
       setTitle(newTitle)
 
+      // Update React Flow nodes
       setNodes((nodes) =>
         nodes.map((node) =>
           node.id === id
@@ -126,12 +128,15 @@ function StoryNode({ id, data, selected }: StoryNodeProps) {
         )
       )
 
+      // Update the store's elements array (keeps state in sync)
+      updateElement(id, { title: newTitle })
+
       // Auto-save if enabled
       if (autoSaveEnabled) {
         saveContent({ title: newTitle, content })
       }
     },
-    [id, setNodes, autoSaveEnabled, saveContent, content]
+    [id, setNodes, updateElement, autoSaveEnabled, saveContent, content]
   )
 
   // Update node data when content changes
@@ -140,6 +145,7 @@ function StoryNode({ id, data, selected }: StoryNodeProps) {
       const newContent = e.target.value
       setContent(newContent)
 
+      // Update React Flow nodes
       setNodes((nodes) =>
         nodes.map((node) =>
           node.id === id
@@ -148,12 +154,15 @@ function StoryNode({ id, data, selected }: StoryNodeProps) {
         )
       )
 
+      // Update the store's elements array (keeps state in sync)
+      updateElement(id, { content: newContent })
+
       // Auto-save if enabled
       if (autoSaveEnabled) {
         saveContent({ title, content: newContent })
       }
     },
-    [id, setNodes, autoSaveEnabled, saveContent, title]
+    [id, setNodes, updateElement, autoSaveEnabled, saveContent, title]
   )
 
   // Prevent drag when interacting with textarea

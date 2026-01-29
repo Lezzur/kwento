@@ -14,15 +14,27 @@ import { ToastContainer } from '@/components/ui/Toast'
 import { useStore } from '@/store'
 import { createProject, getAllProjects, getElementsByProject, getConnectionsByProject, getPlotHolesByProject, getCustomCardTypesByProject } from '@/lib/db'
 
-// Dynamic import to avoid SSR issues with React Flow
+// Dynamic imports to avoid SSR issues
 const StoryCanvas = dynamic(
   () => import('@/components/canvas/StoryCanvas'),
   { ssr: false }
 )
 
+const WritingView = dynamic(
+  () => import('@/components/writing/WritingView'),
+  { ssr: false }
+)
+
 export default function WorkspacePage() {
-  const { activeProjectId, setActiveProject, setProjects, setElements, setConnections, setPlotHoles, setCustomCardTypes } = useStore()
+  const { currentView, setCurrentView, activeProjectId, setActiveProject, setProjects, setElements, setConnections, setPlotHoles, setCustomCardTypes } = useStore()
   const isInitializing = useRef(false)
+
+  // Set view to canvas when workspace page loads
+  useEffect(() => {
+    if (currentView !== 'canvas' && currentView !== 'writing') {
+      setCurrentView('canvas')
+    }
+  }, [currentView, setCurrentView])
 
   // Initialize project and load data - consolidated to prevent race conditions
   useEffect(() => {
@@ -71,22 +83,25 @@ export default function WorkspacePage() {
 
   return (
     <div className="h-full flex">
-      {/* Left Sidebar */}
-      <Sidebar />
+      {/* Left Sidebar - Only show in canvas view */}
+      {currentView === 'canvas' && <Sidebar />}
 
-      {/* Canvas Area */}
+      {/* Main Content Area */}
       <div className="flex-1 relative">
-        <StoryCanvas />
+        {currentView === 'canvas' && <StoryCanvas />}
+        {currentView === 'writing' && <WritingView />}
 
-        {/* Top Right Actions */}
-        <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
-          <ResetButton />
-          <SettingsMenu />
-        </div>
+        {/* Top Right Actions - Only show in canvas view */}
+        {currentView === 'canvas' && (
+          <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+            <ResetButton />
+            <SettingsMenu />
+          </div>
+        )}
       </div>
 
-      {/* Chat Panel */}
-      <ChatPanel />
+      {/* Chat Panel - Only show in canvas view */}
+      {currentView === 'canvas' && <ChatPanel />}
 
       {/* Toast Notifications */}
       <ToastContainer />

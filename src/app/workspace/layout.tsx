@@ -7,6 +7,7 @@
 import type { ReactNode } from 'react'
 import { useStore, selectActiveProject } from '@/store'
 import { EditableTitle } from '@/components/ui/EditableTitle'
+import { updateProject as updateProjectInDb } from '@/lib/db'
 
 interface WorkspaceLayoutProps {
   children: ReactNode
@@ -16,8 +17,10 @@ export default function WorkspaceLayout({ children }: WorkspaceLayoutProps) {
   const activeProject = useStore(selectActiveProject)
   const updateProject = useStore((state) => state.updateProject)
 
-  const handleTitleChange = (newTitle: string) => {
+  const handleTitleChange = async (newTitle: string) => {
     if (activeProject) {
+      // Update both database AND store to keep them in sync
+      await updateProjectInDb(activeProject.id, { title: newTitle })
       updateProject(activeProject.id, { title: newTitle })
     }
   }
@@ -29,6 +32,7 @@ export default function WorkspaceLayout({ children }: WorkspaceLayoutProps) {
         <div className="flex items-center gap-4">
           <h1 className="text-lg font-semibold text-kwento-accent">Kwento</h1>
           <EditableTitle
+            key={activeProject?.id || 'no-project'}
             value={activeProject?.title || ''}
             onSave={handleTitleChange}
             placeholder="Untitled Project"
