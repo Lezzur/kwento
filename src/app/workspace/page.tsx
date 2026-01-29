@@ -10,7 +10,10 @@ import ChatPanel from '@/components/chat/ChatPanel'
 import Sidebar from '@/components/sidebar/Sidebar'
 import SettingsMenu from '@/components/ui/SettingsMenu'
 import ResetButton from '@/components/ui/ResetButton'
+import UserMenu from '@/components/ui/UserMenu'
+import SyncIndicator from '@/components/ui/SyncIndicator'
 import { ToastContainer } from '@/components/ui/Toast'
+import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import { useStore } from '@/store'
 import { createProject, getAllProjects, getElementsByProject, getConnectionsByProject, getPlotHolesByProject, getCustomCardTypesByProject } from '@/lib/db'
 
@@ -82,29 +85,31 @@ export default function WorkspacePage() {
   }, [activeProjectId, setActiveProject, setProjects, setElements, setConnections, setPlotHoles, setCustomCardTypes])
 
   return (
-    <div className="h-full flex">
-      {/* Left Sidebar - Only show in canvas view */}
-      {currentView === 'canvas' && <Sidebar />}
+    <ProtectedRoute>
+      <div className="h-full flex">
+        {/* Left Sidebar - Only show in canvas view */}
+        {currentView === 'canvas' && <Sidebar />}
 
-      {/* Main Content Area */}
-      <div className="flex-1 relative">
-        {currentView === 'canvas' && <StoryCanvas />}
-        {currentView === 'writing' && <WritingView />}
+        {/* Main Content Area */}
+        <div className="flex-1 relative">
+          {currentView === 'canvas' && <StoryCanvas />}
+          {currentView === 'writing' && <WritingView />}
 
-        {/* Top Right Actions - Only show in canvas view */}
-        {currentView === 'canvas' && (
+          {/* Top Right Actions */}
           <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
-            <ResetButton />
-            <SettingsMenu />
+            <SyncIndicator />
+            {currentView === 'canvas' && <ResetButton />}
+            {currentView === 'canvas' && <SettingsMenu />}
+            <UserMenu />
           </div>
-        )}
+        </div>
+
+        {/* Chat Panel - Only show in canvas view */}
+        {currentView === 'canvas' && <ChatPanel />}
+
+        {/* Toast Notifications */}
+        <ToastContainer />
       </div>
-
-      {/* Chat Panel - Only show in canvas view */}
-      {currentView === 'canvas' && <ChatPanel />}
-
-      {/* Toast Notifications */}
-      <ToastContainer />
-    </div>
+    </ProtectedRoute>
   )
 }

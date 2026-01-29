@@ -89,6 +89,9 @@ export interface CustomCardType {
   layer: Layer
   createdAt: Date
   updatedAt: Date
+  userId?: string | null
+  syncStatus?: SyncStatus
+  deleted?: boolean
 }
 
 export type PlotHoleSeverity = 'minor' | 'moderate' | 'major'
@@ -110,6 +113,12 @@ export type SeedType =
 export type SeedStatus = 'pending' | 'addressed' | 'skipped' | 'moved'
 
 // -----------------------------------------------------------------------------
+// Sync Types
+// -----------------------------------------------------------------------------
+
+export type SyncStatus = 'pending' | 'synced' | 'error'
+
+// -----------------------------------------------------------------------------
 // Core Models
 // -----------------------------------------------------------------------------
 
@@ -121,6 +130,10 @@ export interface Project {
   structure?: StoryStructure
   createdAt: Date
   updatedAt: Date
+  userId?: string | null
+  syncStatus?: SyncStatus
+  lastSyncedAt?: Date | null
+  deleted?: boolean
 }
 
 export interface StoryStructure {
@@ -158,6 +171,9 @@ export interface Character {
   color?: string
   createdAt: Date
   updatedAt: Date
+  userId?: string | null
+  syncStatus?: SyncStatus
+  deleted?: boolean
 }
 
 export interface Relationship {
@@ -184,6 +200,9 @@ export interface Scene {
   actOrChapter?: string
   createdAt: Date
   updatedAt: Date
+  userId?: string | null
+  syncStatus?: SyncStatus
+  deleted?: boolean
 }
 
 // -----------------------------------------------------------------------------
@@ -204,6 +223,9 @@ export interface CanvasElement {
   layer: Layer
   createdAt: Date
   updatedAt: Date
+  userId?: string | null
+  syncStatus?: SyncStatus
+  deleted?: boolean
 }
 
 export interface Position {
@@ -224,6 +246,9 @@ export interface Connection {
   label?: string
   type?: string
   createdAt: Date
+  userId?: string | null
+  syncStatus?: SyncStatus
+  deleted?: boolean
 }
 
 // -----------------------------------------------------------------------------
@@ -240,6 +265,9 @@ export interface PlotHole {
   aiSuggestion?: string
   createdAt: Date
   resolvedAt?: Date
+  userId?: string | null
+  syncStatus?: SyncStatus
+  deleted?: boolean
 }
 
 // -----------------------------------------------------------------------------
@@ -252,6 +280,9 @@ export interface Conversation {
   messages: Message[]
   createdAt: Date
   updatedAt: Date
+  userId?: string | null
+  syncStatus?: SyncStatus
+  deleted?: boolean
 }
 
 export interface Message {
@@ -274,6 +305,9 @@ export interface Manuscript {
   wordCount: number
   createdAt: Date
   updatedAt: Date
+  userId?: string | null
+  syncStatus?: SyncStatus
+  deleted?: boolean
 }
 
 export interface Chapter {
@@ -291,6 +325,9 @@ export interface Chapter {
   notes?: string
   createdAt: Date
   updatedAt: Date
+  userId?: string | null
+  syncStatus?: SyncStatus
+  deleted?: boolean
 }
 
 export interface WritingSession {
@@ -301,6 +338,9 @@ export interface WritingSession {
   endedAt?: Date
   wordsWritten: number
   aiAssistanceUsed: boolean
+  userId?: string | null
+  syncStatus?: SyncStatus
+  deleted?: boolean
 }
 
 // -----------------------------------------------------------------------------
@@ -319,6 +359,9 @@ export interface StorySeed {
   status: SeedStatus
   addressedAt?: Date
   createdAt: Date
+  userId?: string | null
+  syncStatus?: SyncStatus
+  deleted?: boolean
 }
 
 // -----------------------------------------------------------------------------

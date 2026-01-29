@@ -1,47 +1,51 @@
-import Link from 'next/link'
+'use client'
+
+import { useAuth } from '@/contexts/AuthContext'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
+import AuthModal from '@/components/auth/AuthModal'
 
 export default function Home() {
+  const { user, loading } = useAuth()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!loading && user) {
+      router.push('/workspace')
+    }
+  }, [user, loading, router])
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-kwento-bg-primary flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-kwento-accent"></div>
+          <p className="mt-4 text-kwento-text-secondary">Loading...</p>
+        </div>
+      </main>
+    )
+  }
+
+  if (user) {
+    return null
+  }
+
   return (
     <main className="min-h-screen bg-kwento-bg-primary flex flex-col items-center justify-center p-8">
-      <div className="text-center space-y-6 max-w-2xl">
-        {/* Logo/Title */}
+      <div className="text-center space-y-6 max-w-2xl mb-8">
         <h1 className="text-5xl font-bold text-kwento-text-primary">
           Kwento
         </h1>
-
-        {/* Tagline */}
         <p className="text-xl text-kwento-text-secondary">
           Get your stories out of your head.
         </p>
-
-        {/* Description */}
         <p className="text-kwento-text-secondary leading-relaxed">
           An AI-powered story development workspace that helps you extract
           fragmented ideas, visualize your narrative, and write complete stories.
         </p>
-
-        {/* CTA Buttons */}
-        <div className="flex gap-4 justify-center pt-4">
-          <Link
-            href="/workspace"
-            className="px-6 py-3 bg-kwento-accent text-kwento-bg-primary font-semibold rounded-lg hover:bg-kwento-accent-secondary transition-colors"
-          >
-            New Story
-          </Link>
-          <Link
-            href="/workspace"
-            className="px-6 py-3 bg-kwento-bg-secondary text-kwento-text-primary font-semibold rounded-lg border border-kwento-bg-tertiary hover:bg-kwento-bg-tertiary transition-colors"
-          >
-            Continue Writing
-          </Link>
-        </div>
-
-        {/* Status */}
-        <p className="text-sm text-kwento-text-secondary pt-8">
-          <span className="inline-block w-2 h-2 rounded-full bg-kwento-success mr-2"></span>
-          Phase 1: Foundation Complete
-        </p>
       </div>
+
+      <AuthModal />
     </main>
   )
 }

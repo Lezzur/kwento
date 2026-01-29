@@ -11,6 +11,8 @@
   "dependencies": {
     "@dagrejs/dagre": "^2.0.3",
     "@dagrejs/graphlib": "^3.0.2",
+    "@supabase/ssr": "^0.8.0",
+    "@supabase/supabase-js": "^2.93.3",
     "@tiptap/extension-character-count": "^3.18.0",
     "@tiptap/extension-link": "^3.18.0",
     "@tiptap/extension-placeholder": "^3.18.0",

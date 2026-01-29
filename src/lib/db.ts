@@ -83,6 +83,85 @@ class KwentoDatabase extends Dexie {
       storySeeds: 'id, projectId, chapterId, type, status, createdAt',
       customCardTypes: 'id, projectId, name, createdAt',
     })
+
+    // Version 4: Add sync fields for cloud sync
+    this.version(4).stores({
+      projects: 'id, title, genre, createdAt, updatedAt, userId, syncStatus, lastSyncedAt',
+      characters: 'id, projectId, name, role, createdAt, userId, syncStatus',
+      scenes: 'id, projectId, title, order, createdAt, userId, syncStatus',
+      canvasElements: 'id, projectId, type, layer, createdAt, userId, syncStatus',
+      connections: 'id, projectId, sourceId, targetId, createdAt, userId, syncStatus',
+      plotHoles: 'id, projectId, severity, status, createdAt, userId, syncStatus',
+      conversations: 'id, projectId, createdAt, updatedAt, userId, syncStatus',
+      manuscripts: 'id, projectId, title, createdAt, updatedAt, userId, syncStatus',
+      chapters: 'id, projectId, manuscriptId, order, createdAt, userId, syncStatus',
+      writingSessions: 'id, projectId, chapterId, startedAt, userId, syncStatus',
+      storySeeds: 'id, projectId, chapterId, type, status, createdAt, userId, syncStatus',
+      customCardTypes: 'id, projectId, name, createdAt, userId, syncStatus',
+    }).upgrade(async (trans) => {
+      // Add sync fields to all existing records
+      await trans.table('projects').toCollection().modify((project: any) => {
+        project.userId = null
+        project.syncStatus = 'pending'
+        project.lastSyncedAt = null
+        project.deleted = false
+      })
+      await trans.table('characters').toCollection().modify((character: any) => {
+        character.userId = null
+        character.syncStatus = 'pending'
+        character.deleted = false
+      })
+      await trans.table('scenes').toCollection().modify((scene: any) => {
+        scene.userId = null
+        scene.syncStatus = 'pending'
+        scene.deleted = false
+      })
+      await trans.table('canvasElements').toCollection().modify((element: any) => {
+        element.userId = null
+        element.syncStatus = 'pending'
+        element.deleted = false
+      })
+      await trans.table('connections').toCollection().modify((connection: any) => {
+        connection.userId = null
+        connection.syncStatus = 'pending'
+        connection.deleted = false
+      })
+      await trans.table('plotHoles').toCollection().modify((plotHole: any) => {
+        plotHole.userId = null
+        plotHole.syncStatus = 'pending'
+        plotHole.deleted = false
+      })
+      await trans.table('conversations').toCollection().modify((conversation: any) => {
+        conversation.userId = null
+        conversation.syncStatus = 'pending'
+        conversation.deleted = false
+      })
+      await trans.table('manuscripts').toCollection().modify((manuscript: any) => {
+        manuscript.userId = null
+        manuscript.syncStatus = 'pending'
+        manuscript.deleted = false
+      })
+      await trans.table('chapters').toCollection().modify((chapter: any) => {
+        chapter.userId = null
+        chapter.syncStatus = 'pending'
+        chapter.deleted = false
+      })
+      await trans.table('writingSessions').toCollection().modify((session: any) => {
+        session.userId = null
+        session.syncStatus = 'pending'
+        session.deleted = false
+      })
+      await trans.table('storySeeds').toCollection().modify((seed: any) => {
+        seed.userId = null
+        seed.syncStatus = 'pending'
+        seed.deleted = false
+      })
+      await trans.table('customCardTypes').toCollection().modify((cardType: any) => {
+        cardType.userId = null
+        cardType.syncStatus = 'pending'
+        cardType.deleted = false
+      })
+    })
   }
 }
 
@@ -121,6 +200,7 @@ export async function createProject(title: string, genre?: Project['genre']): Pr
     genre,
     createdAt: now(),
     updatedAt: now(),
+    syncStatus: 'pending',
   }
   await db.projects.add(project)
   return project
@@ -135,7 +215,7 @@ export async function getAllProjects(): Promise<Project[]> {
 }
 
 export async function updateProject(id: string, updates: Partial<Project>): Promise<void> {
-  await db.projects.update(id, { ...updates, updatedAt: now() })
+  await db.projects.update(id, { ...updates, updatedAt: now(), syncStatus: 'pending' })
 }
 
 export async function deleteProject(id: string): Promise<void> {
@@ -177,6 +257,7 @@ export async function createCharacter(
     role,
     createdAt: now(),
     updatedAt: now(),
+    syncStatus: 'pending',
   }
   await db.characters.add(character)
   return character
@@ -187,7 +268,7 @@ export async function getCharactersByProject(projectId: string): Promise<Charact
 }
 
 export async function updateCharacter(id: string, updates: Partial<Character>): Promise<void> {
-  await db.characters.update(id, { ...updates, updatedAt: now() })
+  await db.characters.update(id, { ...updates, updatedAt: now(), syncStatus: 'pending' })
 }
 
 export async function deleteCharacter(id: string): Promise<void> {
@@ -214,6 +295,7 @@ export async function createCanvasElement(
     layer,
     createdAt: now(),
     updatedAt: now(),
+    syncStatus: 'pending',
   }
   await db.canvasElements.add(element)
   return element
@@ -224,7 +306,7 @@ export async function getElementsByProject(projectId: string): Promise<CanvasEle
 }
 
 export async function updateCanvasElement(id: string, updates: Partial<CanvasElement>): Promise<void> {
-  await db.canvasElements.update(id, { ...updates, updatedAt: now() })
+  await db.canvasElements.update(id, { ...updates, updatedAt: now(), syncStatus: 'pending' })
 }
 
 export async function deleteCanvasElement(id: string): Promise<void> {
@@ -255,6 +337,7 @@ export async function createConnection(
     label,
     type,
     createdAt: now(),
+    syncStatus: 'pending',
   }
   await db.connections.add(connection)
   return connection
@@ -272,7 +355,7 @@ export async function updateConnection(
   id: string,
   updates: Partial<Pick<Connection, 'label' | 'type'>>
 ): Promise<void> {
-  await db.connections.update(id, updates)
+  await db.connections.update(id, { ...updates, syncStatus: 'pending' })
 }
 
 // -----------------------------------------------------------------------------
@@ -294,6 +377,7 @@ export async function createManuscript(
     wordCount: 0,
     createdAt: now(),
     updatedAt: now(),
+    syncStatus: 'pending',
   }
   await db.manuscripts.add(manuscript)
   return manuscript
@@ -310,7 +394,7 @@ export async function updateManuscript(id: string, updates: Partial<Manuscript>)
     const text = extractTextFromTiptap(updates.content)
     updates.wordCount = text.trim().split(/\s+/).filter(Boolean).length
   }
-  await db.manuscripts.update(id, { ...updates, updatedAt: now() })
+  await db.manuscripts.update(id, { ...updates, updatedAt: now(), syncStatus: 'pending' })
 }
 
 export async function deleteManuscript(id: string): Promise<void> {
@@ -365,6 +449,7 @@ export async function createChapter(
     seedsAddressed: 0,
     createdAt: now(),
     updatedAt: now(),
+    syncStatus: 'pending',
   }
   await db.chapters.add(chapter)
   return chapter
@@ -379,7 +464,7 @@ export async function getChaptersByManuscript(manuscriptId: string): Promise<Cha
 }
 
 export async function updateChapter(id: string, updates: Partial<Chapter>): Promise<void> {
-  await db.chapters.update(id, { ...updates, updatedAt: now() })
+  await db.chapters.update(id, { ...updates, updatedAt: now(), syncStatus: 'pending' })
 }
 
 export async function deleteChapter(id: string): Promise<void> {
@@ -406,6 +491,7 @@ export async function createPlotHole(
     status: 'open',
     aiSuggestion,
     createdAt: now(),
+    syncStatus: 'pending',
   }
   await db.plotHoles.add(plotHole)
   return plotHole
@@ -419,7 +505,7 @@ export async function updatePlotHole(id: string, updates: Partial<PlotHole>): Pr
   if (updates.status === 'resolved') {
     updates.resolvedAt = now()
   }
-  await db.plotHoles.update(id, updates)
+  await db.plotHoles.update(id, { ...updates, syncStatus: 'pending' })
 }
 
 export async function deletePlotHole(id: string): Promise<void> {
@@ -473,6 +559,7 @@ export async function createCustomCardType(
     layer,
     createdAt: now(),
     updatedAt: now(),
+    syncStatus: 'pending',
   }
   await db.customCardTypes.add(cardType)
   return cardType
@@ -483,7 +570,7 @@ export async function getCustomCardTypesByProject(projectId: string): Promise<Cu
 }
 
 export async function updateCustomCardType(id: string, updates: Partial<CustomCardType>): Promise<void> {
-  await db.customCardTypes.update(id, { ...updates, updatedAt: now() })
+  await db.customCardTypes.update(id, { ...updates, updatedAt: now(), syncStatus: 'pending' })
 }
 
 export async function deleteCustomCardType(id: string): Promise<void> {
