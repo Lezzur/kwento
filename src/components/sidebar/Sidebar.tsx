@@ -21,7 +21,7 @@ type SidebarTab = 'elements' | 'characters' | 'plotholes'
 
 const TABS: { id: SidebarTab; label: string; icon: React.ComponentType<{ className?: string; size?: number }> }[] = [
   { id: 'elements', label: 'Elements', icon: ElementsIcon },
-  { id: 'characters', label: 'Characters', icon: CharacterIcon },
+  { id: 'characters', label: 'Cast', icon: CharacterIcon },
   { id: 'plotholes', label: 'Plot Holes', icon: PlotHoleIcon },
 ]
 

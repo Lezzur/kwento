@@ -58,7 +58,7 @@ export default function CharacterPanel() {
     <div className="h-full flex flex-col bg-kwento-bg-secondary">
       {/* Header */}
       <div className="h-12 flex items-center justify-between px-4 border-b border-kwento-bg-tertiary">
-        <h2 className="text-sm font-medium text-kwento-text-primary">Characters</h2>
+        <h2 className="text-sm font-medium text-kwento-text-primary">Cast</h2>
         <button
           onClick={handleCreateCharacter}
           className="text-xs px-2 py-1 bg-kwento-accent text-kwento-bg-primary rounded hover:bg-kwento-accent-secondary transition-colors"
@@ -71,7 +71,7 @@ export default function CharacterPanel() {
         {/* Character List */}
         <div className="w-1/3 border-r border-kwento-bg-tertiary overflow-y-auto">
           {characters.length === 0 ? (
-            <p className="p-3 text-xs text-kwento-text-secondary">No characters yet</p>
+            <p className="p-3 text-xs text-kwento-text-secondary">No cast members yet</p>
           ) : (
             <ul>
               {characters.map((char) => (
@@ -241,7 +241,7 @@ export default function CharacterPanel() {
             </div>
           ) : (
             <p className="text-xs text-kwento-text-secondary">
-              Select a character to view details
+              Select a cast member to view details
             </p>
           )}
         </div>
