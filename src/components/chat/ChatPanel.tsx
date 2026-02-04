@@ -40,12 +40,7 @@ export default function ChatPanel() {
       {/* Chat Header */}
       <div className="h-12 flex items-center justify-between px-4 border-b border-kwento-bg-tertiary">
         {!isCollapsed && (
-          <>
-            <h2 className="text-sm font-medium text-kwento-text-secondary">Writing Assistant</h2>
-            <span className="text-xs text-kwento-text-secondary">
-              {messages.length} messages
-            </span>
-          </>
+          <h2 className="text-sm font-medium text-kwento-text-secondary">Writing Assistant</h2>
         )}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
@@ -107,8 +102,8 @@ export default function ChatPanel() {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Share your ideas..."
-            rows={1}
-            className="flex-1 px-3 py-2 bg-kwento-bg-primary border border-kwento-bg-tertiary rounded-lg text-sm text-kwento-text-primary placeholder:text-kwento-text-secondary focus:outline-none focus:ring-2 focus:ring-kwento-accent focus:border-transparent resize-none"
+            rows={4}
+            className="flex-1 px-3 py-2 bg-kwento-bg-primary border border-kwento-bg-tertiary rounded-lg text-sm text-kwento-text-primary placeholder:text-kwento-text-secondary focus:outline-none focus:ring-2 focus:ring-kwento-accent focus:border-transparent resize-y"
             disabled={isLoading}
           />
           <button
