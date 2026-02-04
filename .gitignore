@@ -44,3 +44,5 @@ coverage/
 .expo/
 android/app/build/
 ios/Pods/
+
+.vercel
