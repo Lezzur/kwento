@@ -122,6 +122,15 @@ async function callGemini(
   messages: ChatMessage[],
   systemPrompt: string
 ): Promise<string> {
+  // Add emphasis to bracket syntax requirement for Gemini
+  const enhancedPrompt = `${systemPrompt}
+
+CRITICAL: You MUST use the bracket syntax for every story element you identify.
+Format: [TYPE: Title | Description]
+Example: [CHARACTER: Sarah | A detective investigating a murder]
+
+Do NOT just talk about elements - actually create them using brackets!`
+
   // Convert messages to Gemini format
   const contents = messages.map((m) => ({
     role: m.role === 'assistant' ? 'model' : 'user',
@@ -138,7 +147,7 @@ async function callGemini(
       body: JSON.stringify({
         contents,
         systemInstruction: {
-          parts: [{ text: systemPrompt }],
+          parts: [{ text: enhancedPrompt }],
         },
         generationConfig: {
           maxOutputTokens: 1024,

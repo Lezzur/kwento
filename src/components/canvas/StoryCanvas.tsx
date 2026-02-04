@@ -253,7 +253,11 @@ function StoryCanvasInner() {
       const centerY = rect.height / 2
 
       // Convert to flow position (screenToFlowPosition expects client coords)
-      const position = screenToFlowPosition({ x: centerX, y: centerY })
+      const flowCenter = screenToFlowPosition({ x: centerX, y: centerY })
+
+      // Offset by half the card dimensions to center it on the X mark
+      // Default card size is 180x120 (from line 149)
+      const position = { x: flowCenter.x - 90, y: flowCenter.y - 60 }
 
       // Map element type to layer
       const layerMap: Record<ElementType, Layer> = {
@@ -295,7 +299,11 @@ function StoryCanvasInner() {
       const centerY = rect.height / 2
 
       // Convert to flow position (screenToFlowPosition expects client coords)
-      const position = screenToFlowPosition({ x: centerX, y: centerY })
+      const flowCenter = screenToFlowPosition({ x: centerX, y: centerY })
+
+      // Offset by half the card dimensions to center it on the X mark
+      // Default card size is 180x120 (from line 149)
+      const position = { x: flowCenter.x - 90, y: flowCenter.y - 60 }
 
       const element = await createCanvasElement(
         activeProjectId,
