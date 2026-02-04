@@ -25,8 +25,6 @@ import '@xyflow/react/dist/style.css'
 
 import StoryNode, { type StoryNodeData } from './nodes/StoryNode'
 import CanvasToolbar from './CanvasToolbar'
-import CanvasNavigationControls from './CanvasNavigationControls'
-import CanvasBoundary from './CanvasBoundary'
 import TidyUpButton from '@/components/ui/TidyUpButton'
 import { PenIcon } from '@/components/icons/StoryIcons'
 import { useStore } from '@/store'
@@ -92,7 +90,6 @@ function StoryCanvasInner() {
     setSidebarTab,
     setCustomPanelCreateMode,
     setCurrentView,
-    showCanvasBoundary,
   } = useStore()
 
   const containerRef = useRef<HTMLDivElement>(null)
@@ -418,9 +415,6 @@ function StoryCanvasInner() {
             return colorMap[data.type] || '#6B7280'
           }}
         />
-
-        {/* Canvas Boundary (optional visual guide) */}
-        {showCanvasBoundary && <CanvasBoundary />}
       </ReactFlow>
 
       <CanvasToolbar
@@ -431,9 +425,6 @@ function StoryCanvasInner() {
         activeLayers={activeLayers}
         onToggleLayer={handleToggleLayer}
       />
-
-      {/* Canvas Navigation Controls */}
-      <CanvasNavigationControls />
 
       {/* Top-right toolbar buttons */}
       <div className="absolute top-4 right-28 z-10 flex items-center gap-2">
