@@ -138,6 +138,15 @@ aside {
   -webkit-user-select: text;
 }
 
+/* Ensure chat messages are selectable */
+aside [class*="flex justify-end"],
+aside [class*="flex justify-start"] {
+  user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+}
+
 /* React Flow Controls - matching panel styling */
 .react-flow__controls {
   background: var(--bg-secondary) !important;
