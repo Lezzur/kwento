@@ -26,6 +26,7 @@ interface UIState {
   panPosition: { x: number; y: number }
   viewportCenter: { x: number; y: number }
   cardFont: CardFont
+  showCanvasBoundary: boolean
 
   // Sidebar state
   sidebarOpen: boolean
@@ -91,6 +92,7 @@ interface Actions {
   setCardFont: (font: CardFont) => void
   setAutoSaveEnabled: (enabled: boolean) => void
   setAutoSaveInterval: (interval: AutoSaveInterval) => void
+  setShowCanvasBoundary: (show: boolean) => void
 
   // Data Actions
   setProjects: (projects: Project[]) => void
@@ -141,6 +143,7 @@ const initialUIState: UIState = {
   panPosition: { x: 0, y: 0 },
   viewportCenter: { x: 400, y: 300 },
   cardFont: 'system',
+  showCanvasBoundary: false,
   sidebarOpen: true,
   sidebarTab: 'elements',
   customPanelCreateMode: false,
@@ -201,11 +204,28 @@ export const useStore = create<KwentoStore>((set) => ({
   setActiveLayers: (layers) => set({ activeLayers: layers }),
 
   toggleLayer: (layer) =>
-    set((state) => ({
-      activeLayers: state.activeLayers.includes(layer)
-        ? state.activeLayers.filter((l) => l !== layer)
-        : [...state.activeLayers, layer],
-    })),
+    set((state) => {
+      const isCurrentlyActive = state.activeLayers.includes(layer)
+
+      // If toggling 'all', make it the only active layer
+      if (layer === 'all') {
+        return { activeLayers: ['all'] }
+      }
+
+      // If toggling a specific layer
+      if (isCurrentlyActive) {
+        // Prevent deselecting the last layer - default to 'all'
+        const remainingLayers = state.activeLayers.filter((l) => l !== layer)
+        if (remainingLayers.length === 0) {
+          return { activeLayers: ['all'] }
+        }
+        return { activeLayers: remainingLayers }
+      } else {
+        // When activating a specific layer, remove 'all' and add the layer
+        const newLayers = state.activeLayers.filter((l) => l !== 'all')
+        return { activeLayers: [...newLayers, layer] }
+      }
+    }),
 
   setZoom: (level) => set({ zoomLevel: Math.max(0.1, Math.min(2, level)) }),
 
@@ -234,6 +254,8 @@ export const useStore = create<KwentoStore>((set) => ({
   setAutoSaveEnabled: (enabled) => set({ autoSaveEnabled: enabled }),
 
   setAutoSaveInterval: (interval) => set({ autoSaveInterval: interval }),
+
+  setShowCanvasBoundary: (show) => set({ showCanvasBoundary: show }),
 
   // Data Actions
   setProjects: (projects) => set({ projects }),
