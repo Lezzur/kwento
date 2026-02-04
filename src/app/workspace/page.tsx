@@ -27,7 +27,7 @@ const WritingView = dynamic(
 )
 
 export default function WorkspacePage() {
-  const { currentView, setCurrentView, activeProjectId, setActiveProject, setProjects, setElements, setConnections, setPlotHoles, setCustomCardTypes } = useStore()
+  const { currentView, setCurrentView, activeProjectId, setActiveProject, setProjects, setElements, setConnections, setPlotHoles, setCustomCardTypes, setLoadingProjects } = useStore()
   const isInitializing = useRef(false)
 
   // Set view to canvas when workspace page loads
@@ -43,16 +43,18 @@ export default function WorkspacePage() {
       // Prevent concurrent initialization
       if (isInitializing.current) return
       isInitializing.current = true
+      setLoadingProjects(true)
 
       try {
+        // Always fetch all projects first so sidebar is populated
+        const projects = await getAllProjects()
+
         let projectId = activeProjectId
 
-        // If no active project, initialize one
-        if (!projectId) {
-          const projects = await getAllProjects()
-          setProjects(projects)
-
+        // If no active project or active project doesn't exist, initialize one
+        if (!projectId || !projects.find(p => p.id === projectId)) {
           if (projects.length > 0) {
+            setProjects(projects)
             projectId = projects[0].id
           } else {
             const newProject = await createProject('Untitled Story')
@@ -60,7 +62,12 @@ export default function WorkspacePage() {
             projectId = newProject.id
           }
           setActiveProject(projectId)
+        } else {
+          // Active project exists, still need to populate the projects list
+          setProjects(projects)
         }
+
+        setLoadingProjects(false)
 
         // Load project data
         const [elements, connections, plotHoles, customCardTypes] = await Promise.all([
@@ -76,11 +83,12 @@ export default function WorkspacePage() {
         setCustomCardTypes(customCardTypes)
       } finally {
         isInitializing.current = false
+        setLoadingProjects(false)
       }
     }
 
     initAndLoadProject()
-  }, [activeProjectId, setActiveProject, setProjects, setElements, setConnections, setPlotHoles, setCustomCardTypes])
+  }, [activeProjectId, setActiveProject, setProjects, setElements, setConnections, setPlotHoles, setCustomCardTypes, setLoadingProjects])
 
   return (
     <ProtectedRoute>

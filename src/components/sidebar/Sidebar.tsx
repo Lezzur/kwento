@@ -26,7 +26,7 @@ const TABS: { id: SidebarTab; label: string; icon: React.ComponentType<{ classNa
 ]
 
 export default function Sidebar() {
-  const { sidebarOpen, sidebarTab, toggleSidebar, setSidebarTab, setActiveProject, setProjects, resetProjectData, updateProject: updateProjectStore, projects } = useStore()
+  const { sidebarOpen, sidebarTab, toggleSidebar, setSidebarTab, setActiveProject, setProjects, resetProjectData, updateProject: updateProjectStore, projects, isLoadingProjects } = useStore()
   const activeProject = useStore(selectActiveProject)
   const toast = useToast()
 
@@ -207,7 +207,9 @@ export default function Sidebar() {
         {/* Story Dropdown */}
         {isDropdownOpen && (
           <div className="absolute left-0 right-0 top-full mt-1 mx-2 bg-kwento-bg-tertiary border border-kwento-bg-tertiary rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto">
-            {projects.length === 0 ? (
+            {isLoadingProjects ? (
+              <div className="px-3 py-2 text-xs text-kwento-text-secondary">Loading stories...</div>
+            ) : projects.length === 0 ? (
               <div className="px-3 py-2 text-xs text-kwento-text-secondary">No stories yet</div>
             ) : (
               projects.map((project) => (
