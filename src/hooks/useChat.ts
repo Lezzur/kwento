@@ -3,7 +3,7 @@
 // =============================================================================
 
 import { useState, useCallback, useEffect } from 'react'
-import { db, generateId, now, createCanvasElement } from '@/lib/db'
+import { db, generateId, now, createCanvasElement, createCharacter, getCharactersByProject } from '@/lib/db'
 import { useStore } from '@/store'
 import { extractElements, cleanResponseText } from '@/lib/elementExtractor'
 import type { Message, Conversation, CanvasElement } from '@/types'
@@ -46,7 +46,7 @@ What drives Marcus? What does he want more than anything?"
 Only mark elements when you're confident they're distinct story components the user has shared. Don't over-extract - quality over quantity.`
 
 export function useChat() {
-  const { activeProjectId, addElement, viewportCenter } = useStore()
+  const { activeProjectId, addElement, viewportCenter, characters, setCharacters } = useStore()
   const [conversation, setConversation] = useState<Conversation | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -106,6 +106,12 @@ export function useChat() {
       const centerX = viewportCenter.x
       const centerY = viewportCenter.y
 
+      // Get existing characters to check for duplicates
+      const existingCharacters = await getCharactersByProject(activeProjectId)
+      const existingCharacterNames = new Set(
+        existingCharacters.map(c => c.name.toLowerCase().trim())
+      )
+
       for (let i = 0; i < extracted.length; i++) {
         const element = extracted[i]
 
@@ -141,11 +147,45 @@ export function useChat() {
         // Add to store for immediate display
         addElement(canvasElement)
         createdIds.push(canvasElement.id)
+
+        // If this is a CHARACTER element, also create a Character entry in the Cast panel
+        if (element.type === 'character') {
+          const characterName = element.title.trim()
+          const normalizedName = characterName.toLowerCase()
+
+          // Only create if a character with this name doesn't already exist
+          if (!existingCharacterNames.has(normalizedName)) {
+            console.log('[Cast] Creating new character:', characterName)
+
+            const newCharacter = await createCharacter(
+              activeProjectId,
+              characterName,
+              'supporting' // Default role, user can change later
+            )
+
+            // Update physical description if content was provided
+            if (element.content) {
+              await db.characters.update(newCharacter.id, {
+                physicalDescription: element.content,
+              })
+              newCharacter.physicalDescription = element.content
+            }
+
+            // Update the store with the new character
+            const updatedCharacters = await getCharactersByProject(activeProjectId)
+            setCharacters(updatedCharacters)
+
+            // Add to the set to prevent duplicates in this batch
+            existingCharacterNames.add(normalizedName)
+          } else {
+            console.log('[Cast] Character already exists, skipping:', characterName)
+          }
+        }
       }
 
       return createdIds
     },
-    [activeProjectId, addElement, viewportCenter]
+    [activeProjectId, addElement, viewportCenter, setCharacters]
   )
 
   // Send a message
