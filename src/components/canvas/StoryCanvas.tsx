@@ -246,8 +246,11 @@ function StoryCanvasInner() {
 
       // Get center of viewport in screen coordinates
       const container = containerRef.current
-      const centerX = container ? container.clientWidth / 2 : 400
-      const centerY = container ? container.clientHeight / 2 : 300
+      if (!container) return
+
+      const rect = container.getBoundingClientRect()
+      const centerX = rect.left + rect.width / 2
+      const centerY = rect.top + rect.height / 2
 
       // Convert screen center to flow position
       const position = screenToFlowPosition({ x: centerX, y: centerY })
@@ -285,8 +288,11 @@ function StoryCanvasInner() {
 
       // Get center of viewport in screen coordinates
       const container = containerRef.current
-      const centerX = container ? container.clientWidth / 2 : 400
-      const centerY = container ? container.clientHeight / 2 : 300
+      if (!container) return
+
+      const rect = container.getBoundingClientRect()
+      const centerX = rect.left + rect.width / 2
+      const centerY = rect.top + rect.height / 2
 
       // Convert screen center to flow position
       const position = screenToFlowPosition({ x: centerX, y: centerY })
@@ -378,8 +384,9 @@ function StoryCanvasInner() {
           // Update viewport center for element spawning from chat
           const container = containerRef.current
           if (container) {
-            const centerX = container.clientWidth / 2
-            const centerY = container.clientHeight / 2
+            const rect = container.getBoundingClientRect()
+            const centerX = rect.left + rect.width / 2
+            const centerY = rect.top + rect.height / 2
             const flowCenter = screenToFlowPosition({ x: centerX, y: centerY })
             setViewportCenter(flowCenter)
           }
