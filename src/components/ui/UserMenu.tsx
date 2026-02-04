@@ -6,7 +6,7 @@ import { useSync } from '@/hooks/useSync'
 
 export default function UserMenu() {
   const { user, signOut } = useAuth()
-  const { lastSyncTime, fullSync, isSyncing } = useSync()
+  const { lastSyncTime, fullSync, isSyncing, syncError } = useSync()
   const [isOpen, setIsOpen] = useState(false)
 
   if (!user) return null
@@ -24,21 +24,9 @@ export default function UserMenu() {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+        className="px-3 py-1.5 text-sm text-kwento-text-secondary hover:text-kwento-text-primary transition-colors truncate max-w-[200px]"
       >
-        <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white font-medium">
-          {user.email?.[0].toUpperCase()}
-        </div>
-        <div className="text-left hidden md:block">
-          <div className="text-sm font-medium text-white truncate max-w-[150px]">
-            {user.email}
-          </div>
-          {lastSyncTime && (
-            <div className="text-xs text-gray-400">
-              Synced {formatSyncTime(lastSyncTime)}
-            </div>
-          )}
-        </div>
+        {user.email}
       </button>
 
       {isOpen && (
@@ -52,11 +40,31 @@ export default function UserMenu() {
               <div className="text-sm font-medium text-white truncate">
                 {user.email}
               </div>
-              {lastSyncTime && (
-                <div className="text-xs text-gray-400 mt-1">
-                  Last synced: {lastSyncTime.toLocaleString()}
-                </div>
-              )}
+              <div className="flex items-center gap-2 mt-2">
+                {syncError ? (
+                  <>
+                    <div className="w-2 h-2 rounded-full bg-red-500" />
+                    <span className="text-xs text-red-400">Sync Error</span>
+                  </>
+                ) : isSyncing ? (
+                  <>
+                    <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                    <span className="text-xs text-blue-400">Syncing...</span>
+                  </>
+                ) : lastSyncTime ? (
+                  <>
+                    <div className="w-2 h-2 rounded-full bg-green-500" />
+                    <span className="text-xs text-gray-400">
+                      Synced {formatSyncTime(lastSyncTime)}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <div className="w-2 h-2 rounded-full bg-gray-500" />
+                    <span className="text-xs text-gray-400">Not synced</span>
+                  </>
+                )}
+              </div>
             </div>
 
             <div className="p-2">

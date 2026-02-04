@@ -10,8 +10,6 @@ import ChatPanel from '@/components/chat/ChatPanel'
 import Sidebar from '@/components/sidebar/Sidebar'
 import SettingsMenu from '@/components/ui/SettingsMenu'
 import ResetButton from '@/components/ui/ResetButton'
-import UserMenu from '@/components/ui/UserMenu'
-import SyncIndicator from '@/components/ui/SyncIndicator'
 import { ToastContainer } from '@/components/ui/Toast'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import { useStore } from '@/store'
@@ -97,10 +95,8 @@ export default function WorkspacePage() {
 
           {/* Top Right Actions */}
           <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
-            <SyncIndicator />
             {currentView === 'canvas' && <ResetButton />}
             {currentView === 'canvas' && <SettingsMenu />}
-            <UserMenu />
           </div>
         </div>
 

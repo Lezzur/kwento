@@ -42,7 +42,7 @@ export default function RichTextEditor({
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
-          class: 'text-purple-400 hover:text-purple-300 underline cursor-pointer',
+          class: 'text-kwento-accent hover:text-kwento-accent-secondary underline cursor-pointer',
         },
       }),
     ],
@@ -89,7 +89,7 @@ export default function RichTextEditor({
   if (!editor) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="text-slate-500">Loading editor...</div>
+        <div className="text-kwento-text-secondary">Loading editor...</div>
       </div>
     )
   }
@@ -105,7 +105,7 @@ export default function RichTextEditor({
       </div>
 
       {/* Footer Stats */}
-      <div className="border-t border-slate-700 px-4 py-2 text-sm text-slate-400 flex items-center gap-4">
+      <div className="border-t border-kwento-bg-tertiary px-4 py-2 text-sm text-kwento-text-secondary flex items-center gap-4">
         <span>{editor.storage.characterCount.words()} words</span>
         <span>{editor.storage.characterCount.characters()} characters</span>
       </div>
@@ -125,7 +125,7 @@ function EditorToolbar({ editor }: EditorToolbarProps) {
   if (!editor) return null
 
   return (
-    <div className="border-b border-slate-700 px-4 py-2 flex items-center gap-2 flex-wrap">
+    <div className="border-b border-kwento-bg-tertiary px-3 py-2 flex items-center gap-1 flex-wrap">
       {/* Text Formatting */}
       <ToolbarButton
         onClick={() => editor.chain().focus().toggleBold().run()}
@@ -151,7 +151,7 @@ function EditorToolbar({ editor }: EditorToolbarProps) {
         <Strikethrough />
       </ToolbarButton>
 
-      <div className="w-px h-6 bg-slate-700 mx-1" />
+      <div className="w-px h-5 bg-kwento-bg-tertiary mx-1" />
 
       {/* Headings */}
       <ToolbarButton
@@ -178,7 +178,7 @@ function EditorToolbar({ editor }: EditorToolbarProps) {
         H3
       </ToolbarButton>
 
-      <div className="w-px h-6 bg-slate-700 mx-1" />
+      <div className="w-px h-5 bg-kwento-bg-tertiary mx-1" />
 
       {/* Lists */}
       <ToolbarButton
@@ -197,7 +197,7 @@ function EditorToolbar({ editor }: EditorToolbarProps) {
         <NumberedList />
       </ToolbarButton>
 
-      <div className="w-px h-6 bg-slate-700 mx-1" />
+      <div className="w-px h-5 bg-kwento-bg-tertiary mx-1" />
 
       {/* Quotes & Code */}
       <ToolbarButton
@@ -216,7 +216,7 @@ function EditorToolbar({ editor }: EditorToolbarProps) {
         <Code />
       </ToolbarButton>
 
-      <div className="w-px h-6 bg-slate-700 mx-1" />
+      <div className="w-px h-5 bg-kwento-bg-tertiary mx-1" />
 
       {/* Undo/Redo */}
       <ToolbarButton
@@ -257,10 +257,10 @@ function ToolbarButton({ onClick, isActive, disabled, title, children }: Toolbar
       disabled={disabled}
       title={title}
       className={`
-        px-2 py-1 rounded text-sm font-medium transition-colors
+        px-2 py-1 rounded text-xs font-medium transition-colors
         ${isActive
-          ? 'bg-purple-600 text-white'
-          : 'text-slate-400 hover:text-white hover:bg-slate-700'
+          ? 'bg-kwento-accent text-white'
+          : 'text-kwento-text-secondary hover:text-kwento-text-primary hover:bg-kwento-bg-tertiary'
         }
         ${disabled ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}
       `}

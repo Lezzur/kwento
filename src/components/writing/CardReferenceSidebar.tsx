@@ -60,10 +60,10 @@ export default function CardReferenceSidebar({ editor }: CardReferenceSidebarPro
   }
 
   return (
-    <div className="h-full flex flex-col bg-slate-800/50">
+    <div className="h-full flex flex-col bg-kwento-bg-secondary">
       {/* Header */}
-      <div className="border-b border-slate-700 px-4 py-3">
-        <h3 className="text-sm font-semibold text-slate-300 mb-3">References</h3>
+      <div className="border-b border-kwento-bg-tertiary px-4 py-3">
+        <h3 className="text-sm font-semibold text-kwento-text-primary mb-3">References</h3>
 
         {/* Search */}
         <input
@@ -71,12 +71,12 @@ export default function CardReferenceSidebar({ editor }: CardReferenceSidebarPro
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search elements..."
-          className="w-full px-3 py-1.5 bg-slate-700 border border-slate-600 rounded text-sm text-slate-200 placeholder-slate-400 focus:outline-none focus:border-purple-500"
+          className="w-full px-3 py-1.5 bg-kwento-bg-tertiary border border-kwento-bg-tertiary rounded text-sm text-kwento-text-primary placeholder-kwento-text-secondary focus:outline-none focus:border-kwento-accent"
         />
       </div>
 
       {/* Filter Tabs */}
-      <div className="border-b border-slate-700 px-2 py-2 flex items-center gap-1 overflow-x-auto scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-transparent">
+      <div className="border-b border-kwento-bg-tertiary px-2 py-2 flex items-center gap-1 overflow-x-auto scrollbar-thin scrollbar-thumb-kwento-bg-tertiary scrollbar-track-transparent">
         <FilterTab
           label="All"
           active={filter === 'all'}
@@ -108,7 +108,7 @@ export default function CardReferenceSidebar({ editor }: CardReferenceSidebarPro
         {/* Pinned Cards */}
         {pinnedElements.length > 0 && (
           <div className="mb-4">
-            <div className="text-xs text-slate-500 uppercase font-semibold px-2 py-1 flex items-center gap-2">
+            <div className="text-xs text-kwento-text-secondary uppercase font-semibold px-2 py-1 flex items-center gap-2">
               <span>📌</span>
               <span>Pinned</span>
             </div>
@@ -127,7 +127,7 @@ export default function CardReferenceSidebar({ editor }: CardReferenceSidebarPro
 
         {/* Unpinned Cards */}
         {unpinnedElements.length === 0 && pinnedElements.length === 0 ? (
-          <div className="text-center text-slate-500 text-sm py-8">
+          <div className="text-center text-kwento-text-secondary text-sm py-8">
             {searchQuery ? 'No matching elements' : 'No elements yet'}
           </div>
         ) : (
@@ -145,7 +145,7 @@ export default function CardReferenceSidebar({ editor }: CardReferenceSidebarPro
       </div>
 
       {/* Footer Hint */}
-      <div className="border-t border-slate-700 px-4 py-2 text-xs text-slate-500">
+      <div className="border-t border-kwento-bg-tertiary px-4 py-2 text-xs text-kwento-text-secondary">
         Click card actions to pin, insert, or jump to canvas.
       </div>
     </div>
@@ -168,10 +168,10 @@ function FilterTab({ label, active, onClick, count }: FilterTabProps) {
     <button
       onClick={onClick}
       className={`
-        px-3 py-1 rounded text-xs font-medium whitespace-nowrap transition-colors flex-shrink-0
+        px-2 py-1 rounded text-xs font-medium whitespace-nowrap transition-colors flex-shrink-0
         ${active
-          ? 'bg-purple-600 text-white'
-          : 'text-slate-400 hover:text-white hover:bg-slate-700'
+          ? 'bg-kwento-accent text-white'
+          : 'text-kwento-text-secondary hover:text-kwento-text-primary hover:bg-kwento-bg-tertiary'
         }
       `}
     >
@@ -204,7 +204,7 @@ function ReferenceCard({
 
   return (
     <div
-      className="bg-slate-700/50 border border-slate-600 rounded overflow-hidden hover:bg-slate-700 transition-colors"
+      className="bg-kwento-bg-tertiary/50 border border-kwento-bg-tertiary rounded overflow-hidden hover:bg-kwento-bg-tertiary transition-colors"
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
     >
@@ -212,12 +212,12 @@ function ReferenceCard({
       <div className="p-3">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 cursor-pointer" onClick={() => setExpanded(!expanded)}>
-            <div className="text-xs text-slate-400 uppercase mb-1">{element.type}</div>
-            <div className="text-sm font-medium text-slate-200">{element.title}</div>
+            <div className="text-xs text-kwento-text-secondary uppercase mb-1">{element.type}</div>
+            <div className="text-sm font-medium text-kwento-text-primary">{element.title}</div>
           </div>
           <button
             onClick={() => setExpanded(!expanded)}
-            className="text-xs text-slate-500 hover:text-slate-300 px-2"
+            className="text-xs text-kwento-text-secondary hover:text-kwento-text-primary px-2"
           >
             {expanded ? '−' : '+'}
           </button>
@@ -225,7 +225,7 @@ function ReferenceCard({
 
         {/* Card Content (Expanded) */}
         {expanded && element.content && (
-          <div className="mt-2 pt-2 border-t border-slate-600 text-xs text-slate-400 whitespace-pre-wrap">
+          <div className="mt-2 pt-2 border-t border-kwento-bg-tertiary text-xs text-kwento-text-secondary whitespace-pre-wrap">
             {element.content}
           </div>
         )}
@@ -233,7 +233,7 @@ function ReferenceCard({
 
       {/* Action Buttons */}
       {showActions && (
-        <div className="border-t border-slate-600 p-2 flex items-center gap-1">
+        <div className="border-t border-kwento-bg-tertiary p-2 flex items-center gap-1">
           <ActionButton
             icon={isPinned ? '📌' : '📍'}
             label={isPinned ? 'Unpin' : 'Pin'}
@@ -272,7 +272,7 @@ function ActionButton({ icon, label, onClick }: ActionButtonProps) {
         e.stopPropagation()
         onClick()
       }}
-      className="flex items-center gap-1 px-2 py-1 rounded bg-slate-600 hover:bg-slate-500 text-xs text-slate-200 transition-colors"
+      className="flex items-center gap-1 px-2 py-1 rounded bg-kwento-bg-secondary hover:bg-kwento-bg-tertiary text-xs text-kwento-text-primary transition-colors"
       title={label}
     >
       <span>{icon}</span>

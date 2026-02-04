@@ -97,7 +97,7 @@ export default function WritingView() {
   if (isLoading) {
     return (
       <div className="h-full flex items-center justify-center">
-        <div className="text-slate-400">Loading manuscript...</div>
+        <div className="text-kwento-text-secondary">Loading manuscript...</div>
       </div>
     )
   }
@@ -105,7 +105,7 @@ export default function WritingView() {
   if (!manuscript) {
     return (
       <div className="h-full flex items-center justify-center">
-        <div className="text-slate-400">No manuscript found</div>
+        <div className="text-kwento-text-secondary">No manuscript found</div>
       </div>
     )
   }
@@ -113,12 +113,12 @@ export default function WritingView() {
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="border-b border-slate-700 px-6 py-4 flex items-center justify-between">
+      <div className="border-b border-kwento-bg-tertiary px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-4">
           {/* Back to Canvas Button */}
           <button
             onClick={() => setCurrentView('canvas')}
-            className="px-3 py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-sm text-slate-200 transition-colors"
+            className="px-3 py-1.5 rounded bg-kwento-bg-secondary hover:bg-kwento-bg-tertiary border border-kwento-bg-tertiary text-sm text-kwento-text-primary transition-colors"
             title="Back to Canvas"
           >
             ← Canvas
@@ -132,7 +132,7 @@ export default function WritingView() {
               setManuscript({ ...manuscript, title })
               updateManuscript(manuscript.id, { title })
             }}
-            className="text-2xl font-bold bg-transparent border-none outline-none focus:outline-none text-slate-100 placeholder-slate-500"
+            className="text-base font-semibold bg-transparent border-none outline-none focus:outline-none text-kwento-text-primary placeholder-kwento-text-secondary"
             placeholder="Untitled Manuscript"
           />
         </div>
@@ -142,14 +142,14 @@ export default function WritingView() {
           <ChapterNavigator editor={editor} />
 
           {/* Save Indicator */}
-          <div className="text-sm text-slate-400">
+          <div className="text-sm text-kwento-text-secondary">
             {isSavingManuscript ? 'Saving...' : 'Saved'}
           </div>
 
           {/* Toggle Card Sidebar */}
           <button
             onClick={() => setCardSidebarOpen(!cardSidebarOpen)}
-            className="px-3 py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-sm text-slate-200 transition-colors"
+            className="px-3 py-1.5 rounded bg-kwento-bg-secondary hover:bg-kwento-bg-tertiary border border-kwento-bg-tertiary text-sm text-kwento-text-primary transition-colors"
             title={cardSidebarOpen ? 'Hide References' : 'Show References'}
           >
             {cardSidebarOpen ? 'Hide References' : 'Show References'}
@@ -160,7 +160,7 @@ export default function WritingView() {
       {/* Main Content Area */}
       <div className="flex-1 flex overflow-hidden">
         {/* Editor */}
-        <div className={`flex-1 ${cardSidebarOpen ? 'border-r border-slate-700' : ''}`}>
+        <div className={`flex-1 ${cardSidebarOpen ? 'border-r border-kwento-bg-tertiary' : ''}`}>
           <RichTextEditor
             content={manuscript.content}
             onChange={handleContentChange}

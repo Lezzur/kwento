@@ -8,6 +8,7 @@ import type { ReactNode } from 'react'
 import { useStore, selectActiveProject } from '@/store'
 import { EditableTitle } from '@/components/ui/EditableTitle'
 import { updateProject as updateProjectInDb } from '@/lib/db'
+import UserMenu from '@/components/ui/UserMenu'
 
 interface WorkspaceLayoutProps {
   children: ReactNode
@@ -39,10 +40,11 @@ export default function WorkspaceLayout({ children }: WorkspaceLayoutProps) {
             className="text-sm text-kwento-text-secondary"
           />
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
           <button className="px-3 py-1.5 text-sm text-kwento-text-secondary hover:text-kwento-text-primary transition-colors">
             Export
           </button>
+          <UserMenu />
           <button className="px-3 py-1.5 text-sm bg-kwento-accent text-kwento-bg-primary rounded-md hover:bg-kwento-accent-secondary transition-colors">
             Save
           </button>

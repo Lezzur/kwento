@@ -114,11 +114,16 @@ export class SyncService {
 
     if (pending.length === 0) return
 
+    const transformed = pending.map(p => this.transformToSupabase(p, userId))
     const { error } = await this.supabase
       .from('projects')
-      .upsert(pending.map(p => this.transformToSupabase(p, userId)))
+      .upsert(transformed)
 
-    if (error) throw error
+    if (error) {
+      console.error('Sync projects error:', error)
+      console.error('Attempted to sync:', transformed)
+      throw error
+    }
 
     await db.projects.bulkUpdate(
       pending.map(p => ({ key: p.id, changes: { syncStatus: 'synced' as const, lastSyncedAt: new Date() } }))
@@ -478,55 +483,91 @@ export class SyncService {
   }
 
   private transformToSupabase(data: any, userId: string): any {
-    const transformed: any = { ...data, user_id: userId }
+    const transformed: any = {}
 
-    // Convert camelCase to snake_case for Supabase
-    if (data.projectId) transformed.project_id = data.projectId
-    if (data.manuscriptId) transformed.manuscript_id = data.manuscriptId
-    if (data.chapterId) transformed.chapter_id = data.chapterId
-    if (data.sourceId) transformed.source_id = data.sourceId
-    if (data.targetId) transformed.target_id = data.targetId
-    if (data.createdAt) transformed.created_at = data.createdAt
-    if (data.updatedAt) transformed.updated_at = data.updatedAt
-    if (data.syncStatus) transformed.sync_status = data.syncStatus
-    if (data.lastSyncedAt) transformed.last_synced_at = data.lastSyncedAt
+    // Map all fields, converting camelCase to snake_case
+    for (const key in data) {
+      const snakeKey = this.toSnakeCase(key)
+
+      // Skip local-only fields
+      if (key === 'syncStatus' || key === 'lastSyncedAt' || key === 'userId') continue
+
+      // Serialize complex objects/arrays to JSON
+      if (key === 'position' || key === 'size' || key === 'structure' ||
+          key === 'relationships' || key === 'messages' || key === 'personality' ||
+          key === 'linkedScenes' || key === 'relatedElements') {
+        transformed[snakeKey] = JSON.stringify(data[key])
+      }
+      // Handle dates
+      else if (data[key] instanceof Date) {
+        transformed[snakeKey] = data[key].toISOString()
+      }
+      // Handle arrays that should be JSON arrays in Postgres
+      else if (Array.isArray(data[key]) && typeof data[key][0] === 'string') {
+        transformed[snakeKey] = data[key] // Postgres handles string arrays natively
+      }
+      // Copy primitive values
+      else {
+        transformed[snakeKey] = data[key]
+      }
+    }
+
+    // Ensure user_id is set
+    transformed.user_id = userId
 
     // Set synced_at to now
-    transformed.synced_at = new Date()
+    transformed.synced_at = new Date().toISOString()
 
     return transformed
   }
 
+  private toSnakeCase(str: string): string {
+    return str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`)
+  }
+
   private transformFromSupabase(data: any[]): any[] {
     return data.map(item => {
-      const transformed: any = { ...item }
+      const transformed: any = {}
 
-      // Convert snake_case to camelCase for Dexie
-      if (item.user_id) transformed.userId = item.user_id
-      if (item.project_id) transformed.projectId = item.project_id
-      if (item.manuscript_id) transformed.manuscriptId = item.manuscript_id
-      if (item.chapter_id) transformed.chapterId = item.chapter_id
-      if (item.source_id) transformed.sourceId = item.source_id
-      if (item.target_id) transformed.targetId = item.target_id
-      if (item.created_at) transformed.createdAt = new Date(item.created_at)
-      if (item.updated_at) transformed.updatedAt = new Date(item.updated_at)
-      if (item.synced_at) transformed.lastSyncedAt = new Date(item.synced_at)
+      // Map all fields, converting snake_case to camelCase
+      for (const key in item) {
+        const camelKey = this.toCamelCase(key)
 
+        // Skip database-only fields
+        if (key === 'synced_at') {
+          transformed.lastSyncedAt = new Date(item[key])
+          continue
+        }
+
+        // Parse JSON fields back to objects/arrays
+        if (key === 'position' || key === 'size' || key === 'structure' ||
+            key === 'relationships' || key === 'messages' || key === 'personality' ||
+            key === 'linked_scenes' || key === 'related_elements') {
+          try {
+            transformed[camelKey] = typeof item[key] === 'string' ? JSON.parse(item[key]) : item[key]
+          } catch {
+            transformed[camelKey] = item[key]
+          }
+        }
+        // Handle dates
+        else if (key.endsWith('_at') || key === 'created_at' || key === 'updated_at') {
+          transformed[camelKey] = new Date(item[key])
+        }
+        // Copy other values
+        else {
+          transformed[camelKey] = item[key]
+        }
+      }
+
+      // Set sync status
       transformed.syncStatus = 'synced'
-
-      // Clean up snake_case fields
-      delete transformed.user_id
-      delete transformed.project_id
-      delete transformed.manuscript_id
-      delete transformed.chapter_id
-      delete transformed.source_id
-      delete transformed.target_id
-      delete transformed.created_at
-      delete transformed.updated_at
-      delete transformed.synced_at
 
       return transformed
     })
+  }
+
+  private toCamelCase(str: string): string {
+    return str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase())
   }
 }
 

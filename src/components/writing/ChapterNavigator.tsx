@@ -113,7 +113,7 @@ export default function ChapterNavigator({ editor, onNavigate }: ChapterNavigato
       {/* Dropdown Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-sm text-slate-200 transition-colors"
+        className="flex items-center gap-2 px-3 py-1.5 rounded bg-kwento-bg-secondary hover:bg-kwento-bg-tertiary border border-kwento-bg-tertiary text-sm text-kwento-text-primary transition-colors"
       >
         <span>📑</span>
         <span>Chapters ({chapters.length})</span>
@@ -130,9 +130,9 @@ export default function ChapterNavigator({ editor, onNavigate }: ChapterNavigato
           />
 
           {/* Menu */}
-          <div className="absolute top-full left-0 mt-2 w-80 bg-slate-800 border border-slate-700 rounded-lg shadow-xl z-20 max-h-96 overflow-y-auto">
+          <div className="absolute top-full left-0 mt-2 w-80 bg-kwento-bg-secondary border border-kwento-bg-tertiary rounded-lg shadow-xl z-20 max-h-96 overflow-y-auto">
             <div className="p-2">
-              <div className="text-xs text-slate-500 uppercase font-semibold px-3 py-2">
+              <div className="text-xs text-kwento-text-secondary uppercase font-semibold px-3 py-2">
                 Navigate to Chapter
               </div>
               {chapters.map((chapter) => (
@@ -142,8 +142,8 @@ export default function ChapterNavigator({ editor, onNavigate }: ChapterNavigato
                   className={`
                     w-full text-left px-3 py-2 rounded transition-colors
                     ${currentChapter === chapter.id
-                      ? 'bg-purple-600 text-white'
-                      : 'text-slate-300 hover:bg-slate-700'
+                      ? 'bg-kwento-accent text-white'
+                      : 'text-kwento-text-primary hover:bg-kwento-bg-tertiary'
                     }
                   `}
                   style={{
@@ -151,7 +151,7 @@ export default function ChapterNavigator({ editor, onNavigate }: ChapterNavigato
                   }}
                 >
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-slate-500">
+                    <span className="text-xs text-kwento-text-secondary">
                       H{chapter.level}
                     </span>
                     <span className="text-sm flex-1 truncate">
