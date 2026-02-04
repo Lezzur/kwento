@@ -244,15 +244,15 @@ function StoryCanvasInner() {
     async (type: ElementType) => {
       if (!activeProjectId) return
 
-      // Get center of viewport in screen coordinates
+      // Get center of viewport in client coordinates
       const container = containerRef.current
       if (!container) return
 
       const rect = container.getBoundingClientRect()
-      const centerX = rect.left + rect.width / 2
-      const centerY = rect.top + rect.height / 2
+      const centerX = rect.width / 2
+      const centerY = rect.height / 2
 
-      // Convert screen center to flow position
+      // Convert to flow position (screenToFlowPosition expects client coords)
       const position = screenToFlowPosition({ x: centerX, y: centerY })
 
       // Map element type to layer
@@ -286,15 +286,15 @@ function StoryCanvasInner() {
     async (customType: CustomCardType) => {
       if (!activeProjectId) return
 
-      // Get center of viewport in screen coordinates
+      // Get center of viewport in client coordinates
       const container = containerRef.current
       if (!container) return
 
       const rect = container.getBoundingClientRect()
-      const centerX = rect.left + rect.width / 2
-      const centerY = rect.top + rect.height / 2
+      const centerX = rect.width / 2
+      const centerY = rect.height / 2
 
-      // Convert screen center to flow position
+      // Convert to flow position (screenToFlowPosition expects client coords)
       const position = screenToFlowPosition({ x: centerX, y: centerY })
 
       const element = await createCanvasElement(
@@ -375,18 +375,17 @@ function StoryCanvasInner() {
         onKeyDown={onKeyDown}
         nodeTypes={nodeTypes}
         defaultEdgeOptions={defaultEdgeOptions}
-        fitView
         minZoom={0.1}
         maxZoom={2}
-        defaultViewport={{ x: 0, y: 0, zoom: zoomLevel }}
+        defaultViewport={{ x: 0, y: 0, zoom: 1 }}
         onMove={(_, viewport) => {
           setZoom(viewport.zoom)
           // Update viewport center for element spawning from chat
           const container = containerRef.current
           if (container) {
             const rect = container.getBoundingClientRect()
-            const centerX = rect.left + rect.width / 2
-            const centerY = rect.top + rect.height / 2
+            const centerX = rect.width / 2
+            const centerY = rect.height / 2
             const flowCenter = screenToFlowPosition({ x: centerX, y: centerY })
             setViewportCenter(flowCenter)
           }

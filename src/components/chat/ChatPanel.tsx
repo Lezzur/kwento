@@ -10,6 +10,7 @@ import { useChat } from '@/hooks/useChat'
 
 export default function ChatPanel() {
   const [input, setInput] = useState('')
+  const [isCollapsed, setIsCollapsed] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const { messages, isLoading, sendMessage } = useChat()
 
@@ -35,17 +36,41 @@ export default function ChatPanel() {
   }
 
   return (
-    <aside className="w-80 flex-shrink-0 border-l border-kwento-bg-tertiary bg-kwento-bg-secondary flex flex-col">
+    <aside className={`flex-shrink-0 border-l border-kwento-bg-tertiary bg-kwento-bg-secondary flex flex-col transition-all duration-300 ${isCollapsed ? 'w-12' : 'w-80'}`}>
       {/* Chat Header */}
       <div className="h-12 flex items-center justify-between px-4 border-b border-kwento-bg-tertiary">
-        <h2 className="text-sm font-medium text-kwento-text-secondary">Writing Assistant</h2>
-        <span className="text-xs text-kwento-text-secondary">
-          {messages.length} messages
-        </span>
+        {!isCollapsed && (
+          <>
+            <h2 className="text-sm font-medium text-kwento-text-secondary">Writing Assistant</h2>
+            <span className="text-xs text-kwento-text-secondary">
+              {messages.length} messages
+            </span>
+          </>
+        )}
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="ml-auto text-kwento-text-secondary hover:text-kwento-text-primary transition-colors"
+          title={isCollapsed ? 'Expand chat' : 'Collapse chat'}
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={`transition-transform ${isCollapsed ? 'rotate-180' : ''}`}
+          >
+            <polyline points="9 6 6 3 3 6" transform="rotate(90 6 6)" />
+          </svg>
+        </button>
       </div>
 
       {/* Chat Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3 select-text">
+      {!isCollapsed && (
+        <div className="flex-1 overflow-y-auto p-4 space-y-3 select-text">
         {messages.length === 0 ? (
           <div className="bg-kwento-bg-tertiary rounded-lg p-3 text-sm text-kwento-text-secondary select-text">
             <p>Hey! What&apos;s the story that&apos;s been brewing in your mind?</p>
@@ -71,9 +96,11 @@ export default function ChatPanel() {
 
         <div ref={messagesEndRef} />
       </div>
+      )}
 
       {/* Chat Input */}
-      <form onSubmit={handleSubmit} className="p-4 border-t border-kwento-bg-tertiary">
+      {!isCollapsed && (
+        <form onSubmit={handleSubmit} className="p-4 border-t border-kwento-bg-tertiary">
         <div className="flex gap-2">
           <textarea
             value={input}
@@ -93,6 +120,7 @@ export default function ChatPanel() {
           </button>
         </div>
       </form>
+      )}
     </aside>
   )
 }
