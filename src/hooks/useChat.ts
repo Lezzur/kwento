@@ -31,6 +31,13 @@ Available types:
 - IDEA: A general concept to explore
 - NOTE: Miscellaneous information
 
+CRITICAL - Each mention is UNIQUE:
+- Create SEPARATE cards for each distinct reference, even if related
+- "Tony Stark" and "Iron Man" = 2 separate CHARACTER cards
+- "London" and "Post-Flood London" = 2 separate LOCATION cards
+- "Young Sarah" and "Adult Sarah" = 2 separate CHARACTER cards
+- NEVER consolidate or merge - treat each as unique
+
 Example response:
 "I'm picking up some great elements here! You've got [CHARACTER: Marcus | A gruff veteran haunted by his past] and it sounds like there's a [CONFLICT: Father vs Son | Generational tension over family legacy].
 
@@ -92,11 +99,12 @@ export function useChat() {
       if (!activeProjectId) return []
 
       const extracted = extractElements(responseText)
+      console.log('[Card Creation] Extracted elements:', extracted)
       const createdIds: string[] = []
 
-      // Use viewport center from store for positioning (stagger elements)
-      const baseX = viewportCenter.x - 110 // Center the grid of elements
-      const baseY = viewportCenter.y - 90
+      // Spawn all cards at the exact center of the viewport
+      const centerX = viewportCenter.x
+      const centerY = viewportCenter.y
 
       for (let i = 0; i < extracted.length; i++) {
         const element = extracted[i]
@@ -118,7 +126,7 @@ export function useChat() {
           activeProjectId,
           element.type,
           element.title,
-          { x: baseX + (i % 3) * 220, y: baseY + Math.floor(i / 3) * 180 },
+          { x: centerX, y: centerY },
           layerMap[element.type] || 'all'
         )
 
