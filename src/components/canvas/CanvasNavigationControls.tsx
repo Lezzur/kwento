@@ -22,12 +22,12 @@ export default function CanvasNavigationControls() {
   }
 
   return (
-    <div className="absolute bottom-4 left-4 z-10 flex flex-col gap-2">
-      {/* Recenter Control */}
+    <div className="absolute bottom-[180px] left-4 z-10 flex flex-col gap-2">
+      {/* Combined Navigation Panel */}
       <div className="bg-kwento-bg-secondary rounded-lg border border-kwento-bg-tertiary shadow-lg overflow-hidden">
         <button
           onClick={handleRecenter}
-          className="w-full px-4 py-2.5 text-left text-xs font-medium text-kwento-text-primary hover:bg-kwento-bg-tertiary transition-colors flex items-center gap-2"
+          className="w-full px-4 py-2 text-left text-xs font-medium text-kwento-text-primary hover:bg-kwento-bg-tertiary transition-colors border-b border-kwento-bg-tertiary flex items-center gap-2"
           title="Return to canvas origin (0,0)"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-kwento-accent">
@@ -36,13 +36,10 @@ export default function CanvasNavigationControls() {
           </svg>
           Recenter Origin
         </button>
-      </div>
 
-      {/* Boundary Toggle */}
-      <div className="bg-kwento-bg-secondary rounded-lg border border-kwento-bg-tertiary shadow-lg overflow-hidden">
         <button
           onClick={() => setShowCanvasBoundary(!showCanvasBoundary)}
-          className={`w-full px-4 py-2.5 text-left text-xs font-medium transition-colors flex items-center gap-2 ${
+          className={`w-full px-4 py-2 text-left text-xs font-medium transition-colors flex items-center gap-2 ${
             showCanvasBoundary
               ? 'bg-kwento-accent text-kwento-bg-primary'
               : 'text-kwento-text-primary hover:bg-kwento-bg-tertiary'
