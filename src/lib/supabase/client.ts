@@ -10,5 +10,12 @@ export function createClient() {
     )
   }
 
+  // Validate URL format
+  try {
+    new URL(supabaseUrl)
+  } catch (e) {
+    throw new Error(`Invalid NEXT_PUBLIC_SUPABASE_URL: ${supabaseUrl}`)
+  }
+
   return createBrowserClient(supabaseUrl, supabaseAnonKey)
 }
