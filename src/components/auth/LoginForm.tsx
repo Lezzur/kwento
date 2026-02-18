@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function LoginForm({ onToggle }: { onToggle: () => void }) {
@@ -61,6 +62,15 @@ export default function LoginForm({ onToggle }: { onToggle: () => void }) {
         />
       </div>
 
+      <div className="flex justify-end">
+        <Link
+          href="/forgot-password"
+          className="text-xs text-kwento-text-secondary hover:text-kwento-accent transition-colors"
+        >
+          Forgot password?
+        </Link>
+      </div>
+
       {error && (
         <div className="text-sm text-kwento-error bg-kwento-error/10 border border-kwento-error/30 rounded-lg px-4 py-3">
           {error}
@@ -70,7 +80,7 @@ export default function LoginForm({ onToggle }: { onToggle: () => void }) {
       <button
         type="submit"
         disabled={loading}
-        className="w-full px-4 py-3 bg-kwento-accent hover:bg-kwento-accent-secondary disabled:bg-kwento-bg-tertiary disabled:text-kwento-text-secondary text-white rounded-lg font-medium transition-colors"
+        className="w-full px-4 py-3 bg-kwento-accent hover:bg-kwento-accent-secondary disabled:bg-kwento-bg-tertiary disabled:text-kwento-text-secondary text-gray-900 rounded-lg font-medium transition-colors"
       >
         {loading ? 'Signing in...' : 'Sign In'}
       </button>

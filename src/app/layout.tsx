@@ -10,6 +10,18 @@ const caveat = Caveat({ subsets: ['latin'], variable: '--font-caveat' })
 export const metadata: Metadata = {
   title: 'Kwento - Get your stories out of your head',
   description: 'AI-powered story development workspace that helps writers extract ideas and create complete stories.',
+  robots: 'index, follow',
+  openGraph: {
+    type: 'website',
+    title: 'Kwento - Get your stories out of your head',
+    description: 'AI-powered story development workspace that helps writers extract ideas and create complete stories.',
+    siteName: 'Kwento',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Kwento - Get your stories out of your head',
+    description: 'AI-powered story development workspace that helps writers extract ideas and create complete stories.',
+  },
 }
 
 export default function RootLayout({

@@ -78,7 +78,7 @@ export default function SignupForm({ onToggle }: { onToggle: () => void }) {
         </div>
         <button
           onClick={onToggle}
-          className="w-full px-4 py-3 bg-kwento-accent hover:bg-kwento-accent-secondary text-white rounded-lg font-medium transition-colors"
+          className="w-full px-4 py-3 bg-kwento-accent hover:bg-kwento-accent-secondary text-gray-900 rounded-lg font-medium transition-colors"
         >
           Back to Sign In
         </button>
@@ -145,7 +145,7 @@ export default function SignupForm({ onToggle }: { onToggle: () => void }) {
       <button
         type="submit"
         disabled={loading}
-        className="w-full px-4 py-3 bg-kwento-accent hover:bg-kwento-accent-secondary disabled:bg-kwento-bg-tertiary disabled:text-kwento-text-secondary text-white rounded-lg font-medium transition-colors"
+        className="w-full px-4 py-3 bg-kwento-accent hover:bg-kwento-accent-secondary disabled:bg-kwento-bg-tertiary disabled:text-kwento-text-secondary text-gray-900 rounded-lg font-medium transition-colors"
       >
         {loading ? 'Creating account...' : 'Sign Up'}
       </button>
