@@ -46,3 +46,4 @@ android/app/build/
 ios/Pods/
 
 .vercel
+.env*.local

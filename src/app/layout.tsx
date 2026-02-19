@@ -11,6 +11,9 @@ export const metadata: Metadata = {
   title: 'Kwento - Get your stories out of your head',
   description: 'AI-powered story development workspace that helps writers extract ideas and create complete stories.',
   robots: 'index, follow',
+  icons: {
+    icon: '/favicon.svg',
+  },
   openGraph: {
     type: 'website',
     title: 'Kwento - Get your stories out of your head',
