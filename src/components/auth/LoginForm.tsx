@@ -107,16 +107,6 @@ export default function LoginForm({ onToggle }: { onToggle: () => void }) {
         {loading ? 'Signing in...' : 'Sign In'}
       </button>
 
-      <p className="text-sm text-center text-kwento-text-secondary">
-        Don&apos;t have an account?{' '}
-        <button
-          type="button"
-          onClick={onToggle}
-          className="text-kwento-accent hover:text-kwento-accent-secondary font-medium transition-colors"
-        >
-          Sign up
-        </button>
-      </p>
     </form>
   )
 }

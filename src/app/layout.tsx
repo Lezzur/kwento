@@ -8,6 +8,7 @@ const inter = Inter({ subsets: ['latin'] })
 const caveat = Caveat({ subsets: ['latin'], variable: '--font-caveat' })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://kwento-five.vercel.app'),
   title: 'Kwento - Get your stories out of your head',
   description: 'AI-powered story development workspace that helps writers extract ideas and create complete stories.',
   robots: 'index, follow',
@@ -19,11 +20,13 @@ export const metadata: Metadata = {
     title: 'Kwento - Get your stories out of your head',
     description: 'AI-powered story development workspace that helps writers extract ideas and create complete stories.',
     siteName: 'Kwento',
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'Kwento - AI Story Development Workspace' }],
   },
   twitter: {
-    card: 'summary',
+    card: 'summary_large_image',
     title: 'Kwento - Get your stories out of your head',
     description: 'AI-powered story development workspace that helps writers extract ideas and create complete stories.',
+    images: ['/og-image.png'],
   },
 }
 
